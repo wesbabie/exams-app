@@ -3,7 +3,7 @@
 @section('title', 'Temporary password')
 
 @section('content')
-<div class="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+<div class="mx-auto max-w-lg panel p-6">
     <span class="inline-block rounded-full bg-green-100 px-3 py-0.5 text-sm font-semibold text-green-800 dark:bg-green-900 dark:text-green-200">{{ $credentials['context'] === 'created' ? 'Account created' : 'Password reset' }}</span>
     <h1 class="mt-3 text-2xl font-bold">{{ $credentials['name'] }}</h1>
     <p class="text-sm text-slate-500 dark:text-slate-400">Give these details to the person in private. They sign in at the staff login and are asked to choose their own password straight away.</p>

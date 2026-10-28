@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>@yield('title', 'Exam') · UATH Examination System</title>
+<title>@yield('title', 'Exam') · Examination System</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--text:#1b2433;--muted:#5d6b82;--border:#d9dfeb;--accent:#2f5496;--accent-t:#fff;--bad:#c0392b;--bad-bg:#fdecea;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#0f141d;--card:#18202d;--text:#e8edf5;--muted:#9aa8bf;--border:#2b3648;--accent:#6c97e6;--accent-t:#0f141d;--bad:#ef6b5b;--bad-bg:#2c1a1a;color-scheme:dark}}
@@ -29,7 +29,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">UATH Examination System</div>
+  <div class="brand">Examination System</div>
   @yield('content')
 </div>
 </body>

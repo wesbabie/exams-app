@@ -10,7 +10,7 @@
     $passLabel = $exam->pass_mark_type === 'percentage' ? $passValue.'%' : $passValue.' marks';
     $duration = \Carbon\CarbonInterval::seconds($totals['seconds'])->cascade()->forHumans(['short' => true, 'parts' => 2]);
     $session = $registration->examSession;
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $row = 'flex justify-between gap-3 border-b border-slate-200 py-2 text-sm last:border-0 dark:border-slate-700';
 @endphp
 
@@ -31,9 +31,9 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">Read the overview and the rules below, then start when you are ready.</p>
 
             <div class="mt-4 grid grid-cols-3 gap-3">
-                <div class="rounded-xl bg-blue-50 px-3 py-2.5 dark:bg-slate-700"><b class="block text-xl">{{ $totals['questions'] }}</b><span class="text-xs text-slate-500 dark:text-slate-400">Questions</span></div>
-                <div class="rounded-xl bg-blue-50 px-3 py-2.5 dark:bg-slate-700"><b class="block text-xl">{{ $duration ?: '–' }}</b><span class="text-xs text-slate-500 dark:text-slate-400">Total time</span></div>
-                <div class="rounded-xl bg-blue-50 px-3 py-2.5 dark:bg-slate-700"><b class="block text-xl">{{ $passLabel }}</b><span class="text-xs text-slate-500 dark:text-slate-400">Pass mark</span></div>
+                <div class="rounded-xl bg-blue-50 px-3 py-2.5 dark:bg-slate-700"><b class="font-display block text-3xl font-bold leading-tight">{{ $totals['questions'] }}</b><span class="text-xs text-slate-500 dark:text-slate-400">Questions</span></div>
+                <div class="rounded-xl bg-blue-50 px-3 py-2.5 dark:bg-slate-700"><b class="font-display block text-3xl font-bold leading-tight">{{ $duration ?: '–' }}</b><span class="text-xs text-slate-500 dark:text-slate-400">Total time</span></div>
+                <div class="rounded-xl bg-blue-50 px-3 py-2.5 dark:bg-slate-700"><b class="font-display block text-3xl font-bold leading-tight">{{ $passLabel }}</b><span class="text-xs text-slate-500 dark:text-slate-400">Pass mark</span></div>
             </div>
             @if ($multiplier > 1)
                 <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Your timers include extra time (×{{ rtrim(rtrim(number_format($multiplier, 2), '0'), '.') }}).</p>
@@ -46,7 +46,7 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400">The sections for this exam have not been set up yet.</p>
             @else
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
+                    <table class="ledger w-full text-left text-sm">
                         <thead>
                             <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
                                 <th class="py-2 pr-2">Section</th><th class="px-2 py-2 text-right">Questions</th><th class="px-2 py-2 text-right">Time per question</th><th class="py-2 pl-2 text-right">Marks</th>

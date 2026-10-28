@@ -9,12 +9,12 @@
 @section('body')
 <div class="mx-auto max-w-6xl bg-white p-6 text-slate-900 print:max-w-none print:p-0">
     <div class="mb-4 flex gap-2 print:hidden">
-        <button type="button" onclick="window.print()" class="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800">Print or save as PDF</button>
+        <button type="button" onclick="window.print()" class="btn btn-primary">Print or save as PDF</button>
         <a href="{{ route('results.exams.show', $exam) }}" class="rounded-lg border border-slate-400 px-5 py-2.5 font-semibold hover:bg-slate-100">Back</a>
     </div>
 
     <div class="mb-4 text-center">
-        <div class="text-sm font-semibold uppercase tracking-wide text-slate-500">University of Abuja Teaching Hospital</div>
+        <div class="text-sm font-semibold uppercase tracking-wide text-slate-500"> </div>
         <h1 class="text-xl font-bold">{{ $exam->title }}</h1>
         <p class="text-sm text-slate-600">Ranked results · {{ $exam->category->name }} · pass mark {{ $num($exam->pass_mark) }}{{ $exam->pass_mark_type === 'percentage' ? '%' : ' marks' }}@if ($exam->top_n) · shortlist: top {{ $exam->top_n }}@endif · printed {{ now()->format('j M Y, g:i A') }}</p>
     </div>

@@ -4,7 +4,7 @@
 @endphp
 <div class="rounded-2xl border-2 border-slate-300 bg-white p-6 text-slate-900 print:break-inside-avoid print:rounded-none print:border-black">
     <div class="text-center">
-        <div class="text-sm font-semibold uppercase tracking-wide text-slate-500">University of Abuja Teaching Hospital</div>
+        <div class="text-sm font-semibold uppercase tracking-wide text-slate-500"> </div>
         <h1 class="mt-1 text-xl font-bold">Result slip</h1>
     </div>
 

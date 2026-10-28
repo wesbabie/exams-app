@@ -5,13 +5,13 @@
 @section('body')
 <div class="mx-auto max-w-md px-4 py-8 print:py-0">
     <div class="mb-4 flex flex-wrap gap-2 print:hidden">
-        <button type="button" onclick="window.print()" class="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800">Print slip</button>
+        <button type="button" onclick="window.print()" class="btn btn-primary">Print slip</button>
         <a href="{{ route('intern.dashboard') }}" class="rounded-lg border border-slate-400 px-5 py-2.5 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700">Back</a>
     </div>
 
     <div class="rounded-2xl border-2 border-slate-300 bg-white p-6 text-slate-900 print:rounded-none print:border-black">
         <div class="text-center">
-            <div class="text-sm font-semibold uppercase tracking-wide text-slate-500">University of Abuja Teaching Hospital</div>
+            <div class="text-sm font-semibold uppercase tracking-wide text-slate-500"> </div>
             <h1 class="mt-1 text-xl font-bold">Internship entrance exam slip</h1>
         </div>
 

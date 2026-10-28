@@ -3,7 +3,7 @@
 @section('title', 'Check-in · '.$sitting->name)
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
     $muted = 'text-slate-500 dark:text-slate-400';
     $mini = 'rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700';
@@ -73,7 +73,7 @@
         <p class="text-sm {{ $muted }}">{{ request('q') ? 'No one matches that search in this sitting.' : 'No candidates are assigned to this sitting yet.' }}</p>
     @else
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="ledger w-full text-left text-sm">
                 <thead>
                     <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
                         <th class="py-2 pr-2">Seat</th><th class="px-2 py-2">Candidate</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Actions</th>

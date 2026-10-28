@@ -3,7 +3,7 @@
 @section('title', 'Question '.$number)
 
 @section('body')
-<div id="exam" class="mx-auto max-w-3xl px-4 py-4"
+<div id="exam" class="mx-auto max-w-3xl px-4 pb-10 pt-6 sm:px-6"
      data-csrf="{{ csrf_token() }}"
      data-question="{{ $aq->id }}"
      data-remaining-ms="{{ $remainingMs }}"
@@ -11,40 +11,43 @@
      data-save-url="{{ route('candidate.exam.answer') }}"
      data-event-url="{{ route('candidate.exam.event') }}">
 
-    <div class="mb-3 flex items-center justify-between gap-3">
-        <div>
-            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $section->title }}</div>
-            <div class="text-sm font-semibold">Question {{ $number }} of {{ $total }}</div>
+    <div class="drip" aria-hidden="true"><div id="bar" data-level="ok"></div></div>
+
+    <header class="mb-5 flex items-end justify-between gap-4">
+        <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-slate-600 dark:text-slate-300">{{ $section->title }}</p>
+            <p class="font-display text-3xl font-bold leading-none tracking-tight sm:text-4xl">Question {{ $number }} <span class="text-xl font-semibold text-slate-400 sm:text-2xl">of {{ $total }}</span></p>
         </div>
-        <div id="timer" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-2xl font-bold tabular-nums dark:border-slate-600 dark:bg-slate-800" aria-live="off">0:00</div>
-    </div>
+        <div class="shrink-0 text-right">
+            <div id="timer" class="clock text-4xl sm:text-5xl" data-level="ok" aria-live="off">0:00</div>
+            <p id="timer-note" class="mt-1 hidden text-xs font-semibold text-slate-600 dark:text-slate-300">Time is almost up</p>
+        </div>
+    </header>
 
-    <div class="mb-4 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"><div id="bar" class="h-full w-full bg-blue-700 transition-[width] duration-200 ease-linear"></div></div>
-
-    <form id="answer-form" method="POST" action="{{ route('candidate.exam.next') }}"
-          class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <form id="answer-form" method="POST" action="{{ route('candidate.exam.next') }}" class="panel p-5 sm:p-7">
         @csrf
         <input type="hidden" name="question" value="{{ $aq->id }}">
 
-        <p class="whitespace-pre-line text-lg font-semibold leading-relaxed">{{ $question->stem }}</p>
-        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ $multi ? 'Choose every answer that is correct.' : 'Choose one answer.' }}</p>
+        <p class="font-display whitespace-pre-line text-xl font-semibold leading-snug sm:text-2xl">{{ $question->stem }}</p>
+        <p class="mt-2.5 text-sm text-slate-600 dark:text-slate-300">{{ $multi ? 'Choose every answer that is correct.' : 'Choose one answer.' }}</p>
 
-        <div class="mt-4 space-y-2.5">
+        <div class="mt-5 space-y-2.5" role="{{ $multi ? 'group' : 'radiogroup' }}">
             @foreach ($options as $option)
-                <label class="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-slate-200 p-3.5 hover:border-blue-400 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50 dark:border-slate-600 dark:has-[:checked]:bg-slate-700">
-                    <input type="{{ $multi ? 'checkbox' : 'radio' }}" name="selected[]" value="{{ $option->id }}" @checked(in_array($option->id, $selected, true)) class="mt-1 h-5 w-5 shrink-0 accent-blue-700">
-                    <span class="text-base leading-snug">{{ $option->body }}</span>
+                <label class="choice {{ $multi ? 'choice-multi' : '' }}">
+                    <input type="{{ $multi ? 'checkbox' : 'radio' }}" name="selected[]" value="{{ $option->id }}" @checked(in_array($option->id, $selected, true)) class="sr-only">
+                    <span class="choice-bubble" aria-hidden="true">{{ chr(65 + $loop->index) }}</span>
+                    <span class="pt-1 text-base leading-snug sm:text-lg">{{ $option->body }}</span>
                 </label>
             @endforeach
         </div>
 
-        <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <span id="save-status" class="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">&nbsp;</span>
-            <button type="submit" id="next-btn" class="rounded-lg bg-blue-700 px-8 py-3 text-lg font-semibold text-white hover:bg-blue-800 disabled:opacity-60">{{ $isLast ? 'Finish exam' : 'Next question' }}</button>
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-slate-700">
+            <span id="save-status" class="text-sm text-slate-600 dark:text-slate-300" aria-live="polite">&nbsp;</span>
+            <button type="submit" id="next-btn" class="btn btn-primary px-8 py-3 text-lg">{{ $isLast ? 'Finish exam' : 'Next question' }}</button>
         </div>
     </form>
 
-    <p class="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">You cannot go back to earlier questions. Your answer is saved as you choose it.</p>
+    <p class="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">You cannot go back to earlier questions. Your answer is saved as you choose it.</p>
 </div>
 
 <script>
@@ -52,7 +55,7 @@
     const root = document.getElementById('exam');
     const csrf = root.dataset.csrf, qid = +root.dataset.question, totalMs = +root.dataset.totalMs;
     const form = document.getElementById('answer-form'), status = document.getElementById('save-status');
-    const timer = document.getElementById('timer'), bar = document.getElementById('bar');
+    const timer = document.getElementById('timer'), bar = document.getElementById('bar'), note = document.getElementById('timer-note');
     const isLast = @json($isLast);
     const end = performance.now() + (+root.dataset.remainingMs);
     let timeUp = false;
@@ -64,12 +67,10 @@
         timer.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
         bar.style.width = Math.min(100, ms / totalMs * 100) + '%';
 
-        const level = s <= 5 ? 'bad' : s <= 10 ? 'warn' : '';
-        timer.classList.toggle('text-amber-600', level === 'warn');
-        timer.classList.toggle('text-red-600', level === 'bad');
-        bar.classList.toggle('bg-amber-500', level === 'warn');
-        bar.classList.toggle('bg-red-600', level === 'bad');
-        bar.classList.toggle('bg-blue-700', level === '');
+        const level = s <= 5 ? 'bad' : s <= 10 ? 'warn' : 'ok';
+        timer.dataset.level = level;
+        bar.dataset.level = level;
+        note.classList.toggle('hidden', level === 'ok' || timeUp);
 
         if (ms <= 0 && !timeUp) {
             timeUp = true;

@@ -3,8 +3,8 @@
 @section('title', 'Sittings')
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
-    $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
+    $card = 'panel';
+    $input = 'field';
     $muted = 'text-slate-500 dark:text-slate-400';
     $mini = 'rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700';
     $examMinutes = (int) ceil($exam->totalSeconds() / 60);
@@ -17,7 +17,7 @@
         <h1 class="text-2xl font-bold">Sittings</h1>
         <p class="text-sm {{ $muted }}">Each sitting is a date, a venue and a number of seats. The exam takes about {{ $examMinutes }} minutes.</p>
     </div>
-    <a href="{{ route('officer.exams.candidates.index', $exam) }}" class="rounded-lg border border-blue-700 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-slate-700">Candidates</a>
+    <a href="{{ route('officer.exams.candidates.index', $exam) }}" class="btn btn-outline btn-sm">Candidates</a>
 </div>
 
 <div class="mb-5 rounded-lg border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm dark:border-slate-600 dark:bg-slate-800">
@@ -41,7 +41,7 @@
             <p class="text-sm {{ $muted }}">No sittings yet. Add the first one on the right.</p>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="ledger w-full text-left text-sm">
                     <thead>
                         <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
                             <th class="py-2 pr-2">Sitting</th><th class="px-2 py-2">When</th><th class="px-2 py-2 text-right">Seats</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Paper</th><th></th>
@@ -117,7 +117,7 @@
             <label for="capacity" class="mb-1 mt-3 block text-sm font-semibold">Seats</label>
             <input id="capacity" name="capacity" type="number" min="1" max="2000" value="{{ old('capacity') }}" required class="{{ $input }}">
 
-            <button type="submit" class="mt-4 w-full rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800">Add sitting</button>
+            <button type="submit" class="mt-4 w-full btn btn-primary">Add sitting</button>
         </form>
     </section>
 </div>

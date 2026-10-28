@@ -4,7 +4,7 @@
 
 @php
     $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $tabs = ['submitted' => 'To review', 'returned' => 'Returned', 'approved' => 'Approved', 'rejected' => 'Rejected', 'draft' => 'Draft', 'all' => 'All'];
 @endphp
 
@@ -32,7 +32,7 @@
         <option value="">All disciplines</option>
         @foreach ($disciplines as $d)<option value="{{ $d->id }}" @selected((string) request('discipline') === (string) $d->id)>{{ $d->name }}</option>@endforeach
     </select>
-    <button class="rounded-lg border border-blue-700 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-slate-700">Filter</button>
+    <button class="btn btn-outline btn-sm">Filter</button>
 </form>
 
 <section class="{{ $card }}">
@@ -40,7 +40,7 @@
         <p class="text-sm text-slate-500 dark:text-slate-400">No applicants match.</p>
     @else
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="ledger w-full text-left text-sm">
                 <thead>
                     <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
                         <th class="py-2 pr-2">Application no.</th><th class="px-2 py-2">Name</th><th class="px-2 py-2">Discipline</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Submitted</th><th></th>

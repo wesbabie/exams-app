@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>@yield('title', 'Dashboard') · UATH Examination System</title>
+<title>@yield('title', 'Dashboard') ·Examination System</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--text:#1b2433;--muted:#5d6b82;--border:#d9dfeb;--accent:#2f5496;--accent-t:#fff;--soft:#e8effc;--ok:#1e8449;--warn:#b7791f;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#0f141d;--card:#18202d;--text:#e8edf5;--muted:#9aa8bf;--border:#2b3648;--accent:#6c97e6;--accent-t:#0f141d;--soft:#1f2d46;--ok:#4cc38a;--warn:#e0a84a;color-scheme:dark}}
@@ -45,7 +45,7 @@ tfoot td{font-weight:700;border-bottom:0}
 </head>
 <body>
 <header class="topbar"><div class="in">
-  <div class="brand">UATH Examination System</div>
+  <div class="brand">Examination System</div>
   <div class="who">
     <span>@yield('who')</span>
     <form method="POST" action="{{ route('candidate.logout') }}">@csrf<button class="btn ghost" type="submit">Sign out</button></form>

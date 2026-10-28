@@ -3,9 +3,9 @@
 @section('title', 'Paper · '.$sitting->name)
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $muted = 'text-slate-500 dark:text-slate-400';
-    $btn = 'rounded-lg border border-slate-400 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700';
+    $btn = 'btn btn-neutral btn-sm';
     $num = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
 @endphp
 
@@ -25,7 +25,7 @@
     @unless ($paper->isFrozen())
         <div class="flex flex-wrap gap-2">
             <form method="POST" action="{{ route('officer.exams.papers.generate', [$exam, $sitting]) }}">@csrf<button class="{{ $btn }}">Regenerate</button></form>
-            <form method="POST" action="{{ route('officer.exams.papers.freeze', [$exam, $sitting]) }}" onsubmit="return confirm('Freeze this paper? It can no longer change.')">@csrf<button class="rounded-lg bg-green-700 px-4 py-2 font-semibold text-white hover:bg-green-800">Freeze paper</button></form>
+            <form method="POST" action="{{ route('officer.exams.papers.freeze', [$exam, $sitting]) }}" onsubmit="return confirm('Freeze this paper? It can no longer change.')">@csrf<button class="btn btn-good btn-sm">Freeze paper</button></form>
         </div>
     @endunless
 </div>

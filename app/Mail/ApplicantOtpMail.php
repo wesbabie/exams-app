@@ -12,7 +12,7 @@ class ApplicantOtpMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your integitrnship verification code');
+        return new Envelope(subject: 'Your internship verification code');
     }
 
     public function content(): Content

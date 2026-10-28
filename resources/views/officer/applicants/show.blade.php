@@ -3,8 +3,8 @@
 @section('title', $applicant->full_name)
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
-    $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
+    $card = 'panel';
+    $input = 'field';
     $link = 'font-semibold text-blue-700 hover:underline dark:text-blue-400';
     $isPdf = $applicant->credential_path && str_ends_with(strtolower($applicant->credential_path), '.pdf');
 @endphp
@@ -74,7 +74,7 @@
 
             <form method="POST" action="{{ route('officer.applicants.approve', $applicant) }}" class="mt-3">
                 @csrf
-                <button type="submit" @disabled(! $exam) class="w-full rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800 disabled:opacity-50">Approve</button>
+                <button type="submit" @disabled(! $exam) class="w-full btn btn-primary disabled:opacity-50">Approve</button>
             </form>
 
             <form method="POST" action="{{ route('officer.applicants.return', $applicant) }}" class="mt-5">

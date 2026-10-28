@@ -3,7 +3,7 @@
 @section('title', 'Question analysis')
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $muted = 'text-slate-500 dark:text-slate-400';
 @endphp
 
@@ -17,7 +17,7 @@
         <p class="text-sm {{ $muted }}">No submitted attempts yet.</p>
     @else
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="ledger w-full text-left text-sm">
                 <thead>
                     <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
                         <th class="py-2 pr-2">Question</th><th class="px-2 py-2">Section</th><th class="px-2 py-2 text-right">Asked</th><th class="px-2 py-2 text-right">Correct</th><th class="px-2 py-2 text-right">Blank</th><th class="px-2 py-2 text-right">Timed out</th><th class="px-2 py-2">Note</th>

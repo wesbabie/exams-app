@@ -29,7 +29,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">UATH Examination System</div>
+  <div class="brand">Examination System</div>
   @yield('content')
 </div>
 </body>

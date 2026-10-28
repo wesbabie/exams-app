@@ -3,10 +3,386 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+ * Examination System: design tokens.
+ *
+ * The existing views use Tailwind's "blue" and "slate" scales for brand and neutrals.
+ * Redefining those two scales here re-skins every page at once: blue becomes the
+ * pharmacy green, slate becomes a green-grey linen. Names are kept on purpose.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Public Sans', ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-display: 'Bricolage Grotesque', 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Brand: pharmacy green (was blue) */
+    --color-blue-50: #eaf6f0;
+    --color-blue-100: #cfebdd;
+    --color-blue-200: #a3d7bf;
+    --color-blue-300: #6fbc9b;
+    --color-blue-400: #3f9c77;
+    --color-blue-500: #1e8059;
+    --color-blue-600: #0f6b49;
+    --color-blue-700: #0b5a3e;
+    --color-blue-800: #094930;
+    --color-blue-900: #073a27;
+    --color-blue-950: #04281a;
+
+    /* Neutrals: green-grey linen (was slate) */
+    --color-slate-50: #f4f7f5;
+    --color-slate-100: #eaf0ed;
+    --color-slate-200: #dce4e0;
+    --color-slate-300: #c3cfc9;
+    --color-slate-400: #93a29b;
+    --color-slate-500: #66786f;
+    --color-slate-600: #4c5e56;
+    --color-slate-700: #364640;
+    --color-slate-800: #1f2c27;
+    --color-slate-900: #131e1a;
+    --color-slate-950: #0b1411;
+
+    /* Accent: marker yellow, used sparingly */
+    --color-marker-100: #fbefc2;
+    --color-marker-300: #f6d96b;
+    --color-marker-400: #f2c230;
+    --color-marker-600: #a87b00;
+
+    --shadow-sm: 0 1px 0 rgb(19 30 26 / 0.04), 0 1px 2px rgb(19 30 26 / 0.06);
 }
-*{
-    font-family:"montserrat";
+
+@layer base {
+    html {
+        color-scheme: light dark;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        font-family: var(--font-sans);
+        font-feature-settings: 'tnum' 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-display);
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+    }
+
+    h1 {
+        font-weight: 700;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-blue-500);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :focus-visible {
+            outline-color: var(--color-blue-300);
+        }
+    }
+
+    ::selection {
+        background: var(--color-marker-300);
+        color: #13231f;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+    /* A framed surface. Radius steps: controls 8px, panels 14px, pills full. */
+    .panel {
+        background: #fff;
+        border: 1px solid var(--color-slate-200);
+        border-radius: 14px;
+        box-shadow: var(--shadow-sm);
+        padding: 1.25rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .panel {
+            background: var(--color-slate-800);
+            border-color: var(--color-slate-700);
+        }
+    }
+
+    .field {
+        @apply w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/25 dark:border-slate-600 dark:bg-slate-900;
+    }
+
+    .field-label {
+        @apply mb-1.5 mt-5 block text-sm font-semibold;
+    }
+
+    .field-hint {
+        @apply mt-1.5 text-xs text-slate-500 dark:text-slate-400;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold transition-colors disabled:cursor-default disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply bg-blue-700 text-white hover:bg-blue-800;
+    }
+
+    .btn-outline {
+        @apply border border-blue-700 text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-slate-700;
+    }
+
+    .alert-error {
+        @apply mt-5 rounded-lg border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200;
+    }
+
+    .btn-sm {
+        @apply px-4 py-2;
+    }
+
+    .btn-neutral {
+        @apply border border-slate-400 text-slate-700 hover:bg-slate-100 dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-700;
+    }
+
+    .btn-good {
+        @apply bg-green-700 text-white hover:bg-green-800;
+    }
+
+    .btn-danger {
+        @apply border border-red-400 text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-slate-700;
+    }
+
+    /* Status chip: a dot plus the word, so colour never carries the meaning alone */
+    .chip {
+        @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+
+    .chip::before {
+        content: '';
+        width: 0.4rem;
+        height: 0.4rem;
+        border-radius: 9999px;
+        background: currentColor;
+    }
+
+    .chip-neutral {
+        @apply bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200;
+    }
+
+    .chip-muted {
+        @apply bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300;
+    }
+
+    .chip-warn {
+        @apply bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200;
+    }
+
+    .chip-good {
+        @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+    }
+
+    .chip-info {
+        @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+    }
+
+    .chip-bad {
+        @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+    }
+
+    /* Filter pills */
+    .pill {
+        @apply rounded-full border border-slate-300 px-3 py-1 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700;
+    }
+
+    .pill-on {
+        @apply border-blue-700 bg-blue-50 text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:bg-slate-700 dark:text-blue-300;
+    }
+
+    /* Tables: quiet rows that respond to the pointer */
+    .ledger tbody tr {
+        transition: background-color 0.1s;
+    }
+
+    .ledger tbody tr:hover {
+        background: color-mix(in srgb, var(--color-blue-50) 70%, transparent);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .ledger tbody tr:hover {
+            background: color-mix(in srgb, var(--color-slate-700) 50%, transparent);
+        }
+    }
+
+    /* Thin progress meter */
+    .meter {
+        @apply h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-600;
+    }
+
+    .meter > span {
+        @apply block h-full rounded-full bg-blue-600;
+    }
+
+    .meter > span.is-warn {
+        @apply bg-marker-400;
+    }
+
+    .meter > span.is-bad {
+        background: #c8452c;
+    }
+
+    /* Page heading block used at the top of staff pages */
+    .page-title {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        line-height: 1.15;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    /* Answer-sheet bubbles: the motif. Dark panels (front door, sign-in). */
+    .omr-field {
+        background-color: var(--color-blue-900);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='432' height='288'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.12' stroke-width='1.5'%3E%3Cg id='r'%3E%3Ccircle cx='18' cy='24' r='9'/%3E%3Ccircle cx='54' cy='24' r='9'/%3E%3Ccircle cx='90' cy='24' r='9'/%3E%3Ccircle cx='126' cy='24' r='9'/%3E%3Ccircle cx='162' cy='24' r='9'/%3E%3Ccircle cx='198' cy='24' r='9'/%3E%3Ccircle cx='234' cy='24' r='9'/%3E%3Ccircle cx='270' cy='24' r='9'/%3E%3Ccircle cx='306' cy='24' r='9'/%3E%3Ccircle cx='342' cy='24' r='9'/%3E%3Ccircle cx='378' cy='24' r='9'/%3E%3Ccircle cx='414' cy='24' r='9'/%3E%3C/g%3E%3Cuse href='%23r' y='36'/%3E%3Cuse href='%23r' y='72'/%3E%3Cuse href='%23r' y='108'/%3E%3Cuse href='%23r' y='144'/%3E%3Cuse href='%23r' y='180'/%3E%3Cuse href='%23r' y='216'/%3E%3Cuse href='%23r' y='252'/%3E%3C/g%3E%3Cg fill='%23f2c230'%3E%3Ccircle cx='126' cy='96' r='9'/%3E%3Ccircle cx='342' cy='204' r='9'/%3E%3Ccircle cx='198' cy='276' r='9'/%3E%3C/g%3E%3Cg fill='%23fff' fill-opacity='.8'%3E%3Ccircle cx='270' cy='24' r='9'/%3E%3Ccircle cx='54' cy='168' r='9'/%3E%3C/g%3E%3C/svg%3E");
+        background-size: 432px 288px;
+    }
+
+    /* Quiet version for light surfaces */
+    .omr-field-light {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Ccircle cx='18' cy='18' r='5' fill='none' stroke='%2393a29b' stroke-opacity='.35' stroke-width='1.2'/%3E%3C/svg%3E");
+    }
+
+    /* Answer choice on the exam screen: a lettered bubble, like a marked answer sheet */
+    .choice {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        border: 1.5px solid var(--color-slate-200);
+        border-radius: 12px;
+        background: #fff;
+        transition: border-color 0.12s, background-color 0.12s;
+    }
+
+    .choice:hover {
+        border-color: var(--color-blue-400);
+    }
+
+    .choice:has(input:checked) {
+        border-color: var(--color-blue-700);
+        background: var(--color-blue-50);
+    }
+
+    .choice:has(input:focus-visible) {
+        outline: 2px solid var(--color-blue-500);
+        outline-offset: 2px;
+    }
+
+    .choice:has(input:disabled) {
+        cursor: default;
+        opacity: 0.7;
+    }
+
+    .choice-bubble {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 9999px;
+        border: 1.75px solid var(--color-slate-400);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--color-slate-600);
+        transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    /* Choose-many questions use rounded squares so the difference is visible, not only written */
+    .choice-multi .choice-bubble {
+        border-radius: 0.6rem;
+    }
+
+    .choice:has(input:checked) .choice-bubble {
+        background: var(--color-blue-700);
+        border-color: var(--color-blue-700);
+        color: #fff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .choice {
+            background: var(--color-slate-800);
+            border-color: var(--color-slate-600);
+        }
+
+        .choice:has(input:checked) {
+            background: var(--color-blue-950);
+            border-color: var(--color-blue-400);
+        }
+
+        .choice:has(input:checked) .choice-bubble {
+            background: var(--color-blue-400);
+            border-color: var(--color-blue-400);
+            color: var(--color-blue-950);
+        }
+
+        .choice-bubble {
+            color: var(--color-slate-300);
+            border-color: var(--color-slate-500);
+        }
+    }
+
+    /* Countdown strip fixed to the top of the exam screen. Level is set by script: ok | warn | bad */
+    .drip {
+        position: fixed;
+        inset: 0 0 auto 0;
+        height: 6px;
+        background: var(--color-slate-200);
+        z-index: 40;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .drip {
+            background: var(--color-slate-700);
+        }
+    }
+
+    .drip > div {
+        height: 100%;
+        width: 100%;
+        background: var(--color-blue-600);
+        transition: width 0.2s linear, background-color 0.3s;
+    }
+
+    .drip > div[data-level='warn'] {
+        background: var(--color-marker-400);
+    }
+
+    .drip > div[data-level='bad'] {
+        background: #c8452c;
+    }
+
+    .clock {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        letter-spacing: -0.02em;
+    }
+
+    .clock[data-level='warn'] {
+        color: var(--color-marker-600);
+    }
+
+    .clock[data-level='bad'] {
+        color: #c8452c;
+    }
 }

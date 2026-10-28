@@ -3,7 +3,7 @@
 @section('title', 'Verify your email')
 
 @section('content')
-<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+<div class="panel p-6">
     <h1 class="text-2xl font-bold">Verify your email</h1>
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Enter the 6-digit code we sent to <b>{{ $applicant->email }}</b>. It expires in {{ \App\Models\Applicant::OTP_MINUTES }} minutes.</p>
 

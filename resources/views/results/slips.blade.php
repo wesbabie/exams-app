@@ -5,7 +5,7 @@
 @section('body')
 <div class="mx-auto max-w-md px-4 py-6 print:max-w-none print:px-0 print:py-0">
     <div class="mb-4 flex flex-wrap gap-2 print:hidden">
-        <button type="button" onclick="window.print()" class="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800">Print {{ $rows->count() > 1 ? 'all '.$rows->count().' slips' : 'slip' }}</button>
+        <button type="button" onclick="window.print()" class="btn btn-primary">Print {{ $rows->count() > 1 ? 'all '.$rows->count().' slips' : 'slip' }}</button>
         <a href="{{ route('results.exams.show', $exam) }}" class="rounded-lg border border-slate-400 px-5 py-2.5 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700">Back</a>
     </div>
 

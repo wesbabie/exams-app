@@ -3,7 +3,7 @@
 @section('title', 'Staff accounts')
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
     $muted = 'text-slate-500 dark:text-slate-400';
     $mini = 'rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700';
@@ -24,7 +24,7 @@
         <h1 class="text-2xl font-bold">Staff accounts</h1>
         <p class="text-sm {{ $muted }}">Everyone who signs in at the staff login: exam officers, authors, reviewers, invigilators and the committee.</p>
     </div>
-    <a href="{{ route('admin.staff.create') }}" class="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800">New account</a>
+    <a href="{{ route('admin.staff.create') }}" class="btn btn-primary">New account</a>
 </div>
 
 <form method="GET" action="{{ route('admin.staff.index') }}" class="mb-4 grid gap-2 sm:grid-cols-5">
@@ -44,7 +44,7 @@
 
 <section class="{{ $card }}">
     <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
+        <table class="ledger w-full text-left text-sm">
             <thead>
                 <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
                     <th class="py-2 pr-2">Name</th><th class="px-2 py-2">Role</th><th class="px-2 py-2">File number</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Last sign-in</th><th></th>

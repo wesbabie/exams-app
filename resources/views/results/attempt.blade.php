@@ -3,7 +3,7 @@
 @section('title', 'Review attempt')
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $muted = 'text-slate-500 dark:text-slate-400';
     $num = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
     $statusLabels = ['answered' => 'Answered', 'unanswered' => 'Left blank', 'timed_out' => 'Timed out', 'pending' => 'Not reached'];
@@ -30,7 +30,7 @@
         @if ($result)
             <section class="{{ $card }}">
                 <h2 class="mb-3 text-lg font-semibold">Sections</h2>
-                <table class="w-full text-left text-sm">
+                <table class="ledger w-full text-left text-sm">
                     <thead><tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400"><th class="py-2">Section</th><th class="px-2 py-2 text-right">Marks</th><th class="px-2 py-2 text-right">Right</th><th class="px-2 py-2 text-right">Wrong</th><th class="py-2 pl-2 text-right">Blank</th></tr></thead>
                     <tbody>
                     @foreach ($result->sections as $sr)

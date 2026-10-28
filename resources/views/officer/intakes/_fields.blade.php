@@ -1,5 +1,5 @@
 @php
-    $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
+    $input = 'field';
     $fmt = fn ($d) => $d?->format('Y-m-d\TH:i');
 @endphp
 <label for="name" class="mb-1 mt-3 block text-sm font-semibold">Name</label>

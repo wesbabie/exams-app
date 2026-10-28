@@ -3,7 +3,7 @@
 @section('title', 'Check-in')
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $muted = 'text-slate-500 dark:text-slate-400';
     $now = now();
 @endphp

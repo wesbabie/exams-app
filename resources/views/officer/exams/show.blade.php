@@ -3,7 +3,7 @@
 @section('title', $exam->title)
 
 @php
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $row = 'flex justify-between gap-4 border-b border-slate-200 py-2 text-sm last:border-0 dark:border-slate-700';
     $muted = 'text-slate-500 dark:text-slate-400';
     $num = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
@@ -15,35 +15,37 @@
 @endphp
 
 @section('content')
-<a href="{{ route('officer.exams.index') }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← All exams</a>
-
-<div class="mb-5 mt-3 flex flex-wrap items-start justify-between gap-4">
-    <div>
-        @include('officer.partials.status-badge', ['status' => $exam->status])
-        <h1 class="mt-2 text-2xl font-bold">{{ $exam->title }}</h1>
-        <p class="text-sm {{ $muted }}">{{ $exam->category->name }}@if ($exam->cycle_year) · {{ $exam->cycle_year }}@endif</p>
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('officer.exams.candidates.index', $exam) }}" class="rounded-lg border border-slate-400 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700">Candidates</a>
-        <a href="{{ route('officer.exams.sittings.index', $exam) }}" class="rounded-lg border border-slate-400 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700">Sittings</a>
-        <a href="{{ route('results.exams.show', $exam) }}" class="rounded-lg border border-slate-400 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700">Results</a>
+<x-page-head :title="$exam->title" :subtitle="$exam->category->name.($exam->cycle_year ? ' · '.$exam->cycle_year : '')" :back="route('officer.exams.index')" back-label="All exams">
+    <x-slot:badge>@include('officer.partials.status-badge', ['status' => $exam->status])</x-slot:badge>
+    <x-slot:actions>
+        <a href="{{ route('officer.exams.candidates.index', $exam) }}" class="btn btn-neutral btn-sm">Candidates</a>
+        <a href="{{ route('officer.exams.sittings.index', $exam) }}" class="btn btn-neutral btn-sm">Sittings</a>
+        <a href="{{ route('results.exams.show', $exam) }}" class="btn btn-neutral btn-sm">Results</a>
         @if ($exam->status === 'draft')
-            <a href="{{ route('officer.exams.edit', $exam) }}" class="rounded-lg border border-blue-700 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-slate-700">Edit</a>
+            <a href="{{ route('officer.exams.edit', $exam) }}" class="btn btn-outline btn-sm">Edit</a>
             <form method="POST" action="{{ route('officer.exams.submit', $exam) }}">@csrf
-                <button class="rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white hover:bg-blue-800">Send for review</button>
+                <button class="btn btn-primary btn-sm">Send for review</button>
             </form>
         @elseif ($exam->status === 'in_review')
             <form method="POST" action="{{ route('officer.exams.reopen', $exam) }}">@csrf
-                <button class="rounded-lg border border-slate-400 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700">Return to draft</button>
+                <button class="btn btn-neutral btn-sm">Return to draft</button>
             </form>
             @unless ($isCreator)
                 <form method="POST" action="{{ route('officer.exams.approve', $exam) }}">@csrf
-                    <button class="rounded-lg bg-green-700 px-4 py-2 font-semibold text-white hover:bg-green-800">Approve</button>
+                    <button class="btn btn-good btn-sm">Approve</button>
                 </form>
             @endunless
         @endif
-    </div>
+    </x-slot:actions>
+</x-page-head>
+
+<x-lifecycle :status="$exam->status" />
+
+<div class="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <x-stat label="Questions" :value="$totalQuestions" />
+    <x-stat label="Time to answer" :value="$duration" />
+    <x-stat label="Total marks" :value="$num($totalMarks)" />
+    <x-stat label="Pass mark" :value="$num($exam->pass_mark).($exam->pass_mark_type === 'percentage' ? '%' : '')" :sub="$exam->pass_mark_type === 'percentage' ? null : 'marks'" />
 </div>
 
 @if ($exam->status === 'in_review' && $isCreator)
@@ -59,79 +61,70 @@
 
 <div class="grid items-start gap-5 lg:grid-cols-3">
     <div class="space-y-5 lg:col-span-2">
-        <section class="{{ $card }}">
-            <h2 class="mb-3 text-lg font-semibold">Sections</h2>
+        <section class="{{ $card }} !p-0">
+            <h2 class="px-5 pb-3 pt-5 text-lg font-bold">The paper</h2>
             @if ($exam->sections->isEmpty())
-                <p class="text-sm {{ $muted }}">No sections yet.</p>
+                <p class="px-5 pb-5 text-sm {{ $muted }}">No sections yet.</p>
             @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                <th class="py-2 pr-2">Section</th><th class="px-2 py-2 text-right">Questions</th><th class="px-2 py-2 text-right">Time per question</th><th class="px-2 py-2 text-right">Mark each</th><th class="py-2 pl-2 text-right">Section marks</th><th class="py-2 pl-4">Question set</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ($exam->sections as $s)
-                            <tr class="border-b border-slate-200 dark:border-slate-700">
-                                <td class="py-2.5 pr-2">{{ $s->position }}. {{ $s->title }}</td>
-                                <td class="px-2 py-2.5 text-right tabular-nums">{{ $s->question_count }}</td>
-                                <td class="px-2 py-2.5 text-right tabular-nums">{{ $s->seconds_per_question }} sec</td>
-                                <td class="px-2 py-2.5 text-right tabular-nums">{{ $num($s->marks_per_question) }}</td>
-                                <td class="py-2.5 pl-2 text-right tabular-nums">{{ $num($s->question_count * $s->marks_per_question) }}</td>
-                                @php $st = $sectionStatus[$s->id] ?? ['have' => 0, 'need' => $s->question_count, 'ok' => false]; @endphp
-                                <td class="py-2.5 pl-4 whitespace-nowrap">
-                                    <a href="{{ route('officer.exams.sections.questions.edit', [$exam, $s]) }}" class="inline-flex items-center gap-2 font-semibold text-blue-700 hover:underline dark:text-blue-400">
-                                        <span class="{{ $st['ok'] ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400' }}">{{ $st['have'] }} / {{ $st['need'] }}</span>
-                                        <span>{{ $exam->status === 'draft' ? ($exam->paper_mode === 'fixed_set' ? 'Choose' : 'Set counts') : 'View' }}</span>
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr class="font-bold">
-                                <td class="py-2.5 pr-2">Total</td><td class="px-2 py-2.5 text-right tabular-nums">{{ $totalQuestions }}</td><td class="px-2 py-2.5 text-right">{{ $duration }}</td><td></td><td class="py-2.5 pl-2 text-right tabular-nums">{{ $num($totalMarks) }}</td><td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                <ol class="divide-y divide-slate-200 border-t border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+                    @foreach ($exam->sections as $s)
+                        @php $st = $sectionStatus[$s->id] ?? ['have' => 0, 'need' => $s->question_count, 'ok' => false]; @endphp
+                        <li class="flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4">
+                            <span class="font-display grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-slate-300 text-base font-bold dark:border-slate-500" aria-hidden="true">{{ $s->position }}</span>
+                            <div class="min-w-[12rem] flex-1">
+                                <p class="font-display text-lg font-bold leading-tight">{{ $s->title }}</p>
+                                <p class="text-sm {{ $muted }}">{{ $s->question_count }} questions · {{ $s->seconds_per_question }} sec each · {{ $num($s->marks_per_question) }} mark{{ (float) $s->marks_per_question === 1.0 ? '' : 's' }} each · {{ $num($s->question_count * $s->marks_per_question) }} marks</p>
+                            </div>
+                            <div class="w-44 shrink-0">
+                                <div class="mb-1 flex items-baseline justify-between text-sm">
+                                    <span class="{{ $st['ok'] ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400' }} font-semibold tabular-nums">{{ $st['have'] }} of {{ $st['need'] }}</span>
+                                    <a href="{{ route('officer.exams.sections.questions.edit', [$exam, $s]) }}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">{{ $exam->status === 'draft' ? ($exam->paper_mode === 'fixed_set' ? 'Choose' : 'Set counts') : 'View' }}</a>
+                                </div>
+                                <x-meter :value="$st['have']" :max="max(1, $st['need'])" :tone="$st['ok'] ? null : 'warn'" :label="$s->title.' questions chosen'" />
+                            </div>
+                        </li>
+                    @endforeach
+                </ol>
             @endif
         </section>
 
         @if (in_array($exam->status, ['draft', 'in_review'], true))
             <section class="{{ $card }}">
-                <h2 class="mb-2 text-lg font-semibold">Readiness</h2>
+                <h2 class="mb-2 text-lg font-bold">Ready for review?</h2>
                 @if (empty($issues))
-                    <p class="text-sm text-green-700 dark:text-green-400">Every section has its questions. The exam is ready for review.</p>
+                    <p class="flex items-center gap-2 text-sm font-semibold text-green-700 dark:text-green-400"><x-icon name="check" class="h-4 w-4" />Every section has its questions.</p>
                 @else
-                    <p class="mb-2 text-sm {{ $muted }}">Before this exam can go for review:</p>
-                    <ul class="list-disc space-y-1 pl-5 text-sm text-amber-800 dark:text-amber-300">
-                        @foreach ($issues as $issue)<li>{{ $issue }}</li>@endforeach
+                    <ul class="space-y-1.5 text-sm">
+                        @foreach ($issues as $issue)
+                            <li class="flex items-start gap-2 text-amber-800 dark:text-amber-300"><span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-marker-400" aria-hidden="true"></span>{{ $issue }}</li>
+                        @endforeach
                     </ul>
                 @endif
             </section>
         @endif
 
-        <section class="{{ $card }}">
-            <h2 class="mb-3 text-lg font-semibold">Still to set up</h2>
-            <ul class="space-y-2 text-sm">
-                <li class="flex items-center justify-between gap-3"><span>The paper for each sitting</span><span class="rounded-full border border-slate-300 px-2.5 py-0.5 text-xs {{ $muted }} dark:border-slate-600">Coming soon</span></li>
+        <section class="{{ $card }} !p-0">
+            <h2 class="px-5 pb-2 pt-5 text-lg font-bold">Then</h2>
+            <ul class="divide-y divide-slate-200 dark:divide-slate-700">
+                <li><a href="{{ route('officer.exams.candidates.index', $exam) }}" class="block px-5 py-3 hover:bg-blue-50 dark:hover:bg-slate-700"><span class="font-semibold">Candidates</span><span class="block text-sm {{ $muted }}">Import the eligible list, or see approved applicants.</span></a></li>
+                <li><a href="{{ route('officer.exams.sittings.index', $exam) }}" class="block px-5 py-3 hover:bg-blue-50 dark:hover:bg-slate-700"><span class="font-semibold">Sittings and papers</span><span class="block text-sm {{ $muted }}">Schedule sittings, assign seats, then generate and freeze each paper.</span></a></li>
             </ul>
         </section>
     </div>
 
     <aside class="{{ $card }}">
-        <h2 class="mb-1 text-lg font-semibold">Settings</h2>
+        <h2 class="mb-1 text-lg font-bold">Rules</h2>
+        <p class="mt-3 text-xs font-semibold {{ $muted }}">Paper</p>
         <div class="{{ $row }}"><span class="{{ $muted }}">Paper mode</span><b>{{ $exam->paper_mode === 'fixed_set' ? 'Fixed set' : 'Pool draw' }}</b></div>
-        <div class="{{ $row }}"><span class="{{ $muted }}">Pass mark</span><b>{{ $num($exam->pass_mark) }}{{ $exam->pass_mark_type === 'percentage' ? '%' : ' marks' }}</b></div>
-        <div class="{{ $row }}"><span class="{{ $muted }}">Negative marking</span><b>{{ (float) $exam->negative_mark_fraction > 0 ? '−'.$num($exam->negative_mark_fraction).' of a mark' : 'Off' }}</b></div>
         <div class="{{ $row }}"><span class="{{ $muted }}">Shuffle questions</span><b>{{ $exam->shuffle_questions ? 'Yes' : 'No' }}</b></div>
         <div class="{{ $row }}"><span class="{{ $muted }}">Shuffle options</span><b>{{ $exam->shuffle_options ? 'Yes' : 'No' }}</b></div>
         <div class="{{ $row }}"><span class="{{ $muted }}">Forward only</span><b>{{ $exam->forward_only ? 'Yes' : 'No' }}</b></div>
-        @if ($exam->top_n)<div class="{{ $row }}"><span class="{{ $muted }}">Shortlist size</span><b>Top {{ $exam->top_n }}</b></div>@endif
+        <p class="mt-4 text-xs font-semibold {{ $muted }}">Scoring</p>
+        <div class="{{ $row }}"><span class="{{ $muted }}">Negative marking</span><b>{{ (float) $exam->negative_mark_fraction > 0 ? '−'.$num($exam->negative_mark_fraction).' of a mark' : 'Off' }}</b></div>
         <div class="{{ $row }}"><span class="{{ $muted }}">Tie-break</span><b>{{ ['field_section_score' => 'Field section score', 'earliest_submission' => 'Earliest submission'][$exam->tie_break_rule] ?? 'None' }}</b></div>
-        <div class="{{ $row }}"><span class="{{ $muted }}">Results shown</span><b>{{ ['hidden' => 'Hidden until released', 'pass_fail' => 'Pass or fail only', 'full_breakdown' => 'Full breakdown'][$exam->result_release] ?? $exam->result_release }}</b></div>
+        @if ($exam->top_n)<div class="{{ $row }}"><span class="{{ $muted }}">Shortlist size</span><b>Top {{ $exam->top_n }}</b></div>@endif
+        <p class="mt-4 text-xs font-semibold {{ $muted }}">Results</p>
+        <div class="{{ $row }}"><span class="{{ $muted }}">Shown to candidates</span><b>{{ ['hidden' => 'Hidden until released', 'pass_fail' => 'Pass or fail only', 'full_breakdown' => 'Full breakdown'][$exam->result_release] ?? $exam->result_release }}</b></div>
         <div class="{{ $row }}"><span class="{{ $muted }}">Created by</span><b>{{ $exam->creator?->name ?? '–' }}</b></div>
     </aside>
 </div>

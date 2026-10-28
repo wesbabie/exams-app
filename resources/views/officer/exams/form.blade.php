@@ -3,10 +3,10 @@
 @section('title', $mode === 'create' ? 'New exam' : 'Edit exam')
 
 @php
-    $input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
+    $input = 'field';
     $label = 'mb-1 block text-sm font-semibold';
     $hint = 'mt-1 text-xs text-slate-500 dark:text-slate-400';
-    $card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800';
+    $card = 'panel';
     $action = $mode === 'create' ? route('officer.exams.store') : route('officer.exams.update', $exam);
     $sectionRows = array_values(old('sections', $sections));
     $trim = function ($v) {

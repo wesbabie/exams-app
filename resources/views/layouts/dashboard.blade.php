@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
 @section('body')
-<header class="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-    <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-        <div class="font-bold text-blue-700 dark:text-blue-400">UATH Examination System</div>
+<header class="bg-blue-900 text-white">
+    <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3.5">
+        <x-brand :sub="false" class="text-white" />
         <div class="flex items-center gap-3 text-sm">
             <span class="hidden sm:inline">@yield('who')</span>
             <form method="POST" action="@yield('logout_action')">
                 @csrf
-                <button type="submit" class="rounded-lg border border-blue-700 px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-slate-700">Sign out</button>
+                <button type="submit" class="flex items-center gap-1.5 rounded-lg border border-white/30 px-3.5 py-2 font-semibold hover:bg-white/10"><x-icon name="logout" class="h-4 w-4" />Sign out</button>
             </form>
         </div>
     </div>
 </header>
-<main class="mx-auto max-w-5xl px-4 py-6 pb-12">
+<main id="main" class="mx-auto max-w-5xl px-5 py-8 pb-14">
     @yield('content')
 </main>
 @endsection

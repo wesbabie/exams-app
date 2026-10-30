@@ -4,130 +4,135 @@
 
 @php
     $card = 'panel';
-    $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
-    $muted = 'text-slate-500 dark:text-slate-400';
-    $mini = 'rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700';
+    $muted = 'text-slate-600 dark:text-slate-300';
+    $mini = 'btn-mini';
     $labels = ['assigned' => 'Not arrived', 'checked_in' => 'Checked in', 'admitted' => 'Admitted', 'in_progress' => 'Writing', 'absent' => 'Absent', 'completed' => 'Finished'];
-    $badge = [
-        'assigned' => 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200',
-        'checked_in' => 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-        'admitted' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        'absent' => 'bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300',
-        'in_progress' => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-        'completed' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    ];
+    $tone = ['assigned' => 'neutral', 'checked_in' => 'warn', 'admitted' => 'good', 'in_progress' => 'info', 'absent' => 'muted', 'completed' => 'info'];
+    // Segment colours for the arrival bar. The counts beneath carry the meaning, not the colour.
+    $seg = ['assigned' => 'bg-slate-300 dark:bg-slate-500', 'checked_in' => 'bg-marker-400', 'admitted' => 'bg-blue-600', 'in_progress' => 'bg-blue-400', 'completed' => 'bg-blue-900 dark:bg-blue-200', 'absent' => 'bg-slate-200 dark:bg-slate-700'];
+    $order = ['assigned', 'checked_in', 'admitted', 'in_progress', 'completed', 'absent'];
+    $total = max(1, collect($order)->sum(fn ($k) => $counts[$k] ?? 0));
     $now = now();
     $open = $sitting->status !== 'closed' && $now->gte($checkInOpensAt) && $now->lte($sitting->ends_at);
     $waiting = $counts['checked_in'] ?? 0;
 @endphp
 
 @section('content')
-<a href="{{ route('invigilator.sittings.index') }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← All sittings</a>
-
-<div class="mb-4 mt-3 flex flex-wrap items-start justify-between gap-3">
-    <div>
-        <h1 class="text-2xl font-bold">{{ $sitting->exam->title }}</h1>
-        <p class="text-sm {{ $muted }}">{{ $sitting->name }}@if ($sitting->venue) · {{ $sitting->venue }}@endif · {{ $sitting->starts_at->format('D j M, g:i A') }} – {{ $sitting->ends_at->format('g:i A') }}</p>
-    </div>
-    @if ($waiting > 0)
-        <form method="POST" action="{{ route('invigilator.sittings.admit-all', $sitting) }}" onsubmit="return confirm('Admit all {{ $waiting }} checked-in candidate(s)? They will be able to sign in.')">
-            @csrf
-            <button class="rounded-lg bg-green-700 px-5 py-2.5 font-semibold text-white hover:bg-green-800">Admit all checked in ({{ $waiting }})</button>
-        </form>
-    @endif
-</div>
+<x-page-head :title="$sitting->exam->title" :subtitle="$sitting->name.($sitting->venue ? ' · '.$sitting->venue : '').' · '.$sitting->starts_at->format('D j M, g:i A').' to '.$sitting->ends_at->format('g:i A')" :back="route('invigilator.sittings.index')" back-label="All sittings">
+    <x-slot:actions>
+        @if ($waiting > 0)
+            <form method="POST" action="{{ route('invigilator.sittings.admit-all', $sitting) }}" onsubmit="return confirm('Admit all {{ $waiting }} checked-in candidate(s)? They will be able to sign in.')">
+                @csrf
+                <button class="btn btn-good">Admit all checked in ({{ $waiting }})</button>
+            </form>
+        @endif
+    </x-slot:actions>
+</x-page-head>
 
 @if ($sitting->status === 'closed')
-    <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">This sitting is closed.</div>
+    <div class="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">This sitting is closed.</div>
 @elseif ($now->lt($checkInOpensAt))
-    <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">Check-in opens at {{ $checkInOpensAt->format('g:i A, j M') }}.</div>
+    <div class="mb-5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">Check-in opens at {{ $checkInOpensAt->format('g:i A, j M') }}.</div>
 @elseif ($now->gt($sitting->ends_at))
-    <div class="mb-4 rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm dark:border-slate-600 dark:bg-slate-800">This sitting has ended.</div>
+    <div class="mb-5 rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm dark:border-slate-600 dark:bg-slate-800">This sitting has ended.</div>
 @endif
 
 @if ($errors->any())
-    <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>
+    <div class="alert-error !mt-0 mb-5" role="alert">{{ $errors->first() }}</div>
 @endif
 
-<div class="mb-4 grid grid-cols-3 gap-2 text-center sm:grid-cols-7">
-    @foreach (['assigned' => 'Not arrived', 'checked_in' => 'Checked in', 'admitted' => 'Admitted', 'in_progress' => 'Writing', 'absent' => 'Absent', 'completed' => 'Finished'] as $key => $label)
-        <div class="rounded-xl border border-slate-200 bg-white py-2.5 dark:border-slate-700 dark:bg-slate-800"><b class="block text-xl tabular-nums">{{ $counts[$key] ?? 0 }}</b><span class="text-xs {{ $muted }}">{{ $label }}</span></div>
-    @endforeach
-    <div class="rounded-xl border {{ $lockedCount ? 'border-red-400' : 'border-slate-200 dark:border-slate-700' }} bg-white py-2.5 dark:bg-slate-800"><b class="block text-xl tabular-nums {{ $lockedCount ? 'text-red-700 dark:text-red-400' : '' }}">{{ $lockedCount }}</b><span class="text-xs {{ $muted }}">Locked</span></div>
-</div>
+{{-- Where everyone is, at a glance --}}
+<section class="{{ $card }} mb-5" aria-label="Arrival summary">
+    <div class="flex h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="img" aria-label="Candidates by stage">
+        @foreach ($order as $key)
+            @if (($counts[$key] ?? 0) > 0)<span class="{{ $seg[$key] }} block h-full" style="width: {{ round(($counts[$key] ?? 0) / $total * 100, 2) }}%"></span>@endif
+        @endforeach
+    </div>
+    <dl class="mt-4 grid grid-cols-3 gap-x-4 gap-y-4 sm:grid-cols-7">
+        @foreach ($order as $key)
+            <div>
+                <dt class="flex items-center gap-1.5 text-xs {{ $muted }}"><span class="{{ $seg[$key] }} h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>{{ $labels[$key] }}</dt>
+                <dd class="font-display text-3xl font-bold leading-tight tabular-nums">{{ $counts[$key] ?? 0 }}</dd>
+            </div>
+        @endforeach
+        <div>
+            <dt class="flex items-center gap-1.5 text-xs {{ $muted }}"><span class="h-2.5 w-2.5 rounded-full bg-red-600" aria-hidden="true"></span>Locked</dt>
+            <dd class="font-display text-3xl font-bold leading-tight tabular-nums {{ $lockedCount ? 'text-red-700 dark:text-red-400' : '' }}">{{ $lockedCount }}</dd>
+        </div>
+    </dl>
+</section>
 
-<form method="GET" action="{{ route('invigilator.sittings.show', $sitting) }}" class="mb-4 flex gap-2">
-    <input type="search" name="q" value="{{ request('q') }}" autofocus placeholder="Type a file number or name" class="{{ $input }} w-full text-lg">
-    <button class="rounded-lg bg-blue-700 px-5 font-semibold text-white hover:bg-blue-800">Find</button>
-    @if (request('q'))<a href="{{ route('invigilator.sittings.show', $sitting) }}" class="{{ $mini }} flex items-center">Clear</a>@endif
+{{-- Find a candidate: the first thing an invigilator does --}}
+<form method="GET" action="{{ route('invigilator.sittings.show', $sitting) }}" class="mb-5 flex gap-2" role="search">
+    <div class="relative flex-1">
+        <svg viewBox="0 0 24 24" class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" name="q" value="{{ request('q') }}" autofocus placeholder="Type a file number, application number or name" aria-label="Find a candidate" class="field !py-3.5 !pl-12 text-lg">
+    </div>
+    <button class="btn btn-primary px-7 text-lg">Find</button>
+    @if (request('q'))<a href="{{ route('invigilator.sittings.show', $sitting) }}" class="btn btn-neutral">Clear</a>@endif
 </form>
 
 @if ($elsewhere)
-    <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+    <div class="mb-5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
         That candidate is not in this sitting. They are assigned to <b>{{ $elsewhere->examSession?->name ?? 'no sitting' }}</b>@if ($elsewhere->examSession) ({{ $elsewhere->examSession->starts_at->format('D j M, g:i A') }})@endif.
     </div>
 @endif
 
-<section class="{{ $card }}">
+<section class="{{ $card }} !p-0">
     @if ($rows->isEmpty())
-        <p class="text-sm {{ $muted }}">{{ request('q') ? 'No one matches that search in this sitting.' : 'No candidates are assigned to this sitting yet.' }}</p>
+        <p class="p-5 text-sm {{ $muted }}">{{ request('q') ? 'No one matches that search in this sitting.' : 'No candidates are assigned to this sitting yet.' }}</p>
     @else
-        <div class="overflow-x-auto">
-            <table class="ledger w-full text-left text-sm">
-                <thead>
-                    <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                        <th class="py-2 pr-2">Seat</th><th class="px-2 py-2">Candidate</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach ($rows as $r)
-                    @php $c = $cands[$r->candidate_type][$r->candidate_id] ?? null; @endphp
-                    <tr class="border-b border-slate-200 align-top dark:border-slate-700">
-                        <td class="py-3 pr-2 text-lg font-bold tabular-nums">{{ $r->seat_number }}</td>
-                        <td class="px-2 py-3">
-                            <div class="font-semibold">{{ $c?->full_name ?? '–' }}</div>
-                            <div class="font-mono text-xs {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }}</div>
-                            @if ($c && trim(($c->cadre ?? '').' '.($c->department ?? '')))<div class="text-xs {{ $muted }}">{{ trim(($c->cadre ?? '').' '.($c->level ?? '')) }}{{ ($c->department ?? '') ? ' · '.$c->department : '' }}</div>@endif
-                        </td>
-                        <td class="px-2 py-3">
-                            <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $badge[$r->status] ?? $badge['assigned'] }}">{{ $labels[$r->status] ?? $r->status }}</span>
-                            @if ($r->locked_at)<span class="ml-1 inline-block rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-900 dark:text-red-200">Locked</span>@endif
-                            @if ($r->checked_in_at)<div class="mt-1 text-xs {{ $muted }}">in at {{ $r->checked_in_at->format('g:i A') }}</div>@endif
-                        </td>
-                        <td class="px-2 py-3">
-                            <div class="flex flex-wrap items-center gap-2">
-                                @if ($r->status === 'assigned' && $sitting->status !== 'closed')
-                                    <form method="POST" action="{{ route('invigilator.check-in', $r) }}" class="flex flex-wrap items-center gap-2">
-                                        @csrf
-                                        <label class="flex items-center gap-1.5 text-xs"><input type="checkbox" name="identity_confirmed" value="1" class="h-4 w-4 accent-blue-700" @disabled(! $open)> <span>ID checked</span></label>
-                                        <button class="rounded-lg bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-800 disabled:opacity-50" @disabled(! $open)>Check in</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('invigilator.absent', $r) }}" onsubmit="return confirm('Mark this candidate absent?')">@csrf<button class="{{ $mini }}">Absent</button></form>
-                                @endif
+        <ul class="divide-y divide-slate-200 dark:divide-slate-700">
+            @foreach ($rows as $r)
+                @php $c = $cands[$r->candidate_type][$r->candidate_id] ?? null; @endphp
+                <li class="flex flex-wrap items-center gap-x-5 gap-y-3 border-l-4 px-5 py-4 {{ ['checked_in' => 'border-marker-400', 'admitted' => 'border-blue-600', 'in_progress' => 'border-blue-400'][$r->status] ?? 'border-transparent' }}">
+                    <div class="w-14 shrink-0 text-center" aria-label="Seat {{ $r->seat_number }}">
+                        <div class="font-display text-3xl font-bold leading-none tabular-nums">{{ $r->seat_number }}</div>
+                        <div class="mt-1 text-xs {{ $muted }}">Seat</div>
+                    </div>
 
-                                @if ($r->status === 'checked_in')
-                                    <form method="POST" action="{{ route('invigilator.admit', $r) }}">@csrf<button class="rounded-lg bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800">Admit</button></form>
-                                    <form method="POST" action="{{ route('invigilator.undo-check-in', $r) }}" onsubmit="return confirm('Undo this check-in? The PIN will stop working.')">@csrf<button class="{{ $mini }}">Undo</button></form>
-                                @endif
+                    <div class="min-w-[12rem] flex-1">
+                        <p class="font-display text-xl font-bold leading-tight">{{ $c?->full_name ?? '–' }}</p>
+                        <p class="text-sm tabular-nums {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }}</p>
+                        @if ($c && trim(($c->cadre ?? '').' '.($c->department ?? '')))<p class="text-sm {{ $muted }}">{{ trim(($c->cadre ?? '').' '.($c->level ?? '')) }}{{ ($c->department ?? '') ? ' · '.$c->department : '' }}</p>@endif
+                    </div>
 
-                                @if ($r->status === 'admitted')
-                                    <form method="POST" action="{{ route('invigilator.revoke', $r) }}" onsubmit="return confirm('Withdraw this candidate’s admission?')">@csrf<button class="{{ $mini }}">Withdraw admission</button></form>
-                                @endif
+                    <div class="w-36 shrink-0">
+                        <span class="chip chip-{{ $tone[$r->status] ?? 'neutral' }}">{{ $labels[$r->status] ?? $r->status }}</span>
+                        @if ($r->locked_at)<span class="chip chip-bad ml-1">Locked</span>@endif
+                        @if ($r->checked_in_at)<p class="mt-1.5 text-xs {{ $muted }}">in at {{ $r->checked_in_at->format('g:i A') }}</p>@endif
+                    </div>
 
-                                @if (in_array($r->status, ['checked_in', 'admitted'], true))
-                                    <form method="POST" action="{{ route('invigilator.reissue-pin', $r) }}" onsubmit="return confirm('Issue a new PIN? The old one will stop working.')">@csrf<button class="{{ $mini }}">New PIN</button></form>
-                                @endif
+                    <div class="flex flex-wrap items-center gap-2 lg:w-[27rem] lg:justify-end">
+                        @if ($r->status === 'assigned' && $sitting->status !== 'closed')
+                            <form method="POST" action="{{ route('invigilator.check-in', $r) }}" class="flex flex-wrap items-center gap-3">
+                                @csrf
+                                <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="identity_confirmed" value="1" class="h-5 w-5 accent-blue-700" @disabled(! $open)> <span>ID checked</span></label>
+                                <button class="btn btn-primary btn-sm" @disabled(! $open)>Check in</button>
+                            </form>
+                            <form method="POST" action="{{ route('invigilator.absent', $r) }}" onsubmit="return confirm('Mark this candidate absent?')">@csrf<button class="{{ $mini }}">Absent</button></form>
+                        @endif
 
-                                @if ($r->locked_at)
-                                    <form method="POST" action="{{ route('invigilator.unlock', $r) }}">@csrf<button class="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-800">Unlock</button></form>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
+                        @if ($r->status === 'checked_in')
+                            <form method="POST" action="{{ route('invigilator.admit', $r) }}">@csrf<button class="btn btn-good btn-sm">Admit</button></form>
+                            <form method="POST" action="{{ route('invigilator.undo-check-in', $r) }}" onsubmit="return confirm('Undo this check-in? The PIN will stop working.')">@csrf<button class="{{ $mini }}">Undo</button></form>
+                        @endif
+
+                        @if ($r->status === 'admitted')
+                            <form method="POST" action="{{ route('invigilator.revoke', $r) }}" onsubmit="return confirm('Withdraw this candidate’s admission?')">@csrf<button class="{{ $mini }}">Withdraw admission</button></form>
+                        @endif
+
+                        @if (in_array($r->status, ['checked_in', 'admitted'], true))
+                            <form method="POST" action="{{ route('invigilator.reissue-pin', $r) }}" onsubmit="return confirm('Issue a new PIN? The old one will stop working.')">@csrf<button class="{{ $mini }}">New PIN</button></form>
+                        @endif
+
+                        @if ($r->locked_at)
+                            <form method="POST" action="{{ route('invigilator.unlock', $r) }}">@csrf<button class="btn btn-sm bg-red-700 text-white hover:bg-red-800">Unlock</button></form>
+                        @endif
+                    </div>
+                </li>
+            @endforeach
+        </ul>
     @endif
 </section>
 @endsection

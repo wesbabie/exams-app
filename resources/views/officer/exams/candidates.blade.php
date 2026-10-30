@@ -4,16 +4,13 @@
 
 @php
     $card = 'panel';
-    $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
+    $input = 'field-sm';
     $muted = 'text-slate-500 dark:text-slate-400';
-    $mini = 'rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700';
+    $mini = 'btn-mini';
     $labels = ['registered' => 'Awaiting approval', 'approved' => 'Approved', 'assigned' => 'Assigned', 'removed' => 'Removed'];
-    $badge = [
-        'registered' => 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-        'approved' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        'assigned' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        'removed' => 'bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300',
-    ];
+    $tone = ['registered' => 'warn', 'approved' => 'info', 'assigned' => 'good', 'removed' => 'muted'];
+    $seatTotal = $sittings->sum('capacity');
+    $seatUsed = $sittings->sum('assigned_count');
     $chips = ['all' => 'All'] + $labels;
     $openSittings = $sittings->where('status', '!=', 'closed');
     $waiting = $counts['approved'] ?? 0;
@@ -22,14 +19,9 @@
 @endphp
 
 @section('content')
-<a href="{{ route('officer.exams.show', $exam) }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← {{ $exam->title }}</a>
-<div class="mb-5 mt-3 flex flex-wrap items-end justify-between gap-3">
-    <div>
-        <h1 class="text-2xl font-bold">Candidates</h1>
-        <p class="text-sm {{ $muted }}">{{ $exam->category->name }} · the eligible list, late additions and seats.</p>
-    </div>
-    <a href="{{ route('officer.exams.sittings.index', $exam) }}" class="btn btn-outline btn-sm">Sittings</a>
-</div>
+<x-page-head title="Candidates" :subtitle="$exam->category->name.' · the eligible list, late additions and seats.'" :back="route('officer.exams.show', $exam)" :back-label="$exam->title">
+    <x-slot:actions><a href="{{ route('officer.exams.sittings.index', $exam) }}" class="btn btn-outline btn-sm">Sittings</a></x-slot:actions>
+</x-page-head>
 
 @if (session('import_errors'))
     <div class="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">
@@ -47,10 +39,25 @@
     <div class="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>
 @endif
 
+@php
+    $onDay = ($counts['checked_in'] ?? 0) + ($counts['admitted'] ?? 0) + ($counts['in_progress'] ?? 0);
+    $finished = $counts['completed'] ?? 0;
+    $absent = $counts['absent'] ?? 0;
+@endphp
+<div class="mb-2 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <x-stat label="Awaiting approval" :value="$counts['registered'] ?? 0" />
+    <x-stat label="Approved, no sitting yet" :value="$counts['approved'] ?? 0" />
+    <x-stat label="Assigned a seat" :value="$counts['assigned'] ?? 0" />
+    <x-stat label="Seats taken" :value="$seatUsed" :sub="'of '.$seatTotal">
+        <div class="mt-3"><x-meter :value="$seatUsed" :max="max(1, $seatTotal)" :tone="$seatTotal > 0 && $seatUsed >= $seatTotal ? 'bad' : null" label="Seats taken" /></div>
+    </x-stat>
+</div>
+<p class="mb-6 text-sm {{ $muted }}">Exam day: <b>{{ $onDay }}</b> checked in or writing · <b>{{ $finished }}</b> finished · <b>{{ $absent }}</b> absent.</p>
+
 <div class="mb-5 grid items-start gap-5 lg:grid-cols-3">
     {{-- Eligible lists --}}
     <section class="{{ $card }}">
-        <h2 class="mb-2 text-lg font-semibold">Eligible lists</h2>
+        <h2 class="mb-2 flex items-center gap-2.5 text-lg font-bold"><span class="font-display grid h-7 w-7 place-items-center rounded-full border-2 border-slate-300 text-sm dark:border-slate-500" aria-hidden="true">1</span>Eligible list</h2>
 
         @if (! $isStaffExam)
             <p class="text-sm {{ $muted }}">This is an intern exam. Interns register themselves, so there is no list to import here.</p>
@@ -61,7 +68,7 @@
                 <input type="file" name="file" accept=".csv,text/csv" required
                        class="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-700 file:px-3 file:py-1.5 file:font-semibold file:text-white hover:file:bg-blue-800">
                 <div class="mt-3 flex flex-wrap items-center gap-3">
-                    <button class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Import list</button>
+                    <button class="btn btn-primary btn-sm">Import list</button>
                     <a href="{{ route('officer.exams.candidates.template', $exam) }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">Download template</a>
                 </div>
             </form>
@@ -77,9 +84,9 @@
                                 <div class="text-xs {{ $muted }}">{{ $list->row_count }} candidates · imported by {{ $list->importer?->name ?? '–' }} {{ $list->created_at->diffForHumans() }}</div>
                             </div>
                             @if ($list->isApproved())
-                                <span class="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-200">Approved</span>
+                                <span class="chip chip-good shrink-0">Approved</span>
                             @else
-                                <span class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900 dark:text-amber-200">Pending</span>
+                                <span class="chip chip-warn shrink-0">Pending</span>
                             @endif
                         </div>
                         @if ($list->isApproved())
@@ -89,7 +96,7 @@
                                 @if ($list->imported_by === $me)
                                     <span class="text-xs {{ $muted }}">You imported this list, so another exam officer needs to approve it.</span>
                                 @else
-                                    <form method="POST" action="{{ route('officer.exams.lists.approve', [$exam, $list]) }}">@csrf<button class="rounded-lg bg-green-700 px-3 py-1 text-xs font-semibold text-white hover:bg-green-800">Approve list</button></form>
+                                    <form method="POST" action="{{ route('officer.exams.lists.approve', [$exam, $list]) }}">@csrf<button class="btn btn-good !px-3 !py-1 text-xs">Approve list</button></form>
                                 @endif
                                 <form method="POST" action="{{ route('officer.exams.lists.discard', [$exam, $list]) }}" onsubmit="return confirm('Discard this list and its candidates?')">@csrf @method('DELETE')<button class="{{ $mini }} text-red-700 dark:text-red-400">Discard</button></form>
                             </div>
@@ -102,15 +109,18 @@
 
     {{-- Sittings and seats --}}
     <section class="{{ $card }}">
-        <h2 class="mb-2 text-lg font-semibold">Sittings and seats</h2>
+        <h2 class="mb-2 flex items-center gap-2.5 text-lg font-bold"><span class="font-display grid h-7 w-7 place-items-center rounded-full border-2 border-slate-300 text-sm dark:border-slate-500" aria-hidden="true">2</span>Sittings and seats</h2>
         @if ($sittings->isEmpty())
             <p class="text-sm {{ $muted }}">No sittings yet. <a href="{{ route('officer.exams.sittings.index', $exam) }}" class="font-semibold text-blue-700 underline dark:text-blue-400">Add a sitting</a> first.</p>
         @else
-            <ul class="space-y-2 text-sm">
+            <ul class="space-y-3.5 text-sm">
                 @foreach ($sittings as $s)
-                    <li class="flex items-baseline justify-between gap-3">
-                        <span>{{ $s->name }} <span class="text-xs {{ $muted }}">{{ $s->starts_at->format('j M, g:i A') }}</span>@if ($s->status === 'closed') <span class="text-xs text-red-600">closed</span>@endif</span>
-                        <b class="tabular-nums {{ $s->assigned_count >= $s->capacity ? 'text-red-700 dark:text-red-400' : '' }}">{{ $s->assigned_count }} / {{ $s->capacity }}</b>
+                    <li>
+                        <div class="flex items-baseline justify-between gap-3">
+                            <span class="font-semibold">{{ $s->name }} <span class="text-xs font-normal {{ $muted }}">{{ $s->starts_at->format('j M, g:i A') }}</span>@if ($s->status === 'closed') <span class="chip chip-muted ml-1">Closed</span>@endif</span>
+                            <b class="tabular-nums {{ $s->assigned_count >= $s->capacity ? 'text-red-700 dark:text-red-400' : '' }}">{{ $s->assigned_count }} / {{ $s->capacity }}</b>
+                        </div>
+                        <div class="mt-1.5"><x-meter :value="$s->assigned_count" :max="max(1, $s->capacity)" :tone="$s->assigned_count >= $s->capacity ? 'bad' : null" :label="$s->name.' seats'" /></div>
                     </li>
                 @endforeach
             </ul>
@@ -120,7 +130,7 @@
             <form method="POST" action="{{ route('officer.exams.candidates.auto-assign', $exam) }}" class="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
                 @csrf
                 <p class="mb-2 text-sm {{ $muted }}">{{ $waiting }} approved candidate(s) have no sitting yet.</p>
-                <button class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Assign them automatically</button>
+                <button class="btn btn-primary btn-sm">Assign them automatically</button>
                 <p class="mt-1 text-xs {{ $muted }}">Fills the sittings in date order, by file number, with seats from 1.</p>
             </form>
         @endif
@@ -128,7 +138,7 @@
 
     {{-- Late addition --}}
     <section class="{{ $card }}">
-        <h2 class="mb-2 text-lg font-semibold">Add a candidate</h2>
+        <h2 class="mb-2 text-lg font-bold">Add a late candidate</h2>
         @if (! $isStaffExam)
             <p class="text-sm {{ $muted }}">Not available for intern exams.</p>
         @elseif ($closed)
@@ -150,7 +160,7 @@
                         <input name="email" type="email" value="{{ old('email') }}" placeholder="Email (optional)" class="{{ $input }}">
                     </div>
                     <input name="reason" value="{{ old('reason') }}" required maxlength="500" placeholder="Reason for adding" class="{{ $input }} w-full">
-                    <button class="w-full rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Add candidate</button>
+                    <button class="btn btn-primary btn-sm w-full">Add candidate</button>
                 </form>
             </details>
         @endif
@@ -158,7 +168,7 @@
 </div>
 
 {{-- Status chips and filters --}}
-<div class="mb-3 flex flex-wrap gap-2 text-sm">
+<div class="mb-3 flex flex-wrap gap-2">
     @foreach ($chips as $key => $label)
         @php $n = $key === 'all' ? $counts->sum() : ($counts[$key] ?? 0); @endphp
         <a href="{{ route('officer.exams.candidates.index', array_merge(request()->except(['page', 'status']), ['exam' => $exam, 'status' => $key])) }}"
@@ -192,11 +202,11 @@
                     @php $c = $cands[$r->candidate_type][$r->candidate_id] ?? null; @endphp
                     <tr class="border-b border-slate-200 align-top dark:border-slate-700">
                         <td class="py-2.5 pr-2">
-                            <div class="font-semibold">{{ $c?->full_name ?? '–' }}</div>
-                            <div class="font-mono text-xs {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }}</div>
+                            <div class="font-display text-base font-bold leading-tight">{{ $c?->full_name ?? '–' }}</div>
+                            <div class="text-xs tabular-nums {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }}</div>
                         </td>
                         <td class="px-2 py-2.5">{{ trim(($c->cadre ?? '').' '.($c->level ?? '')) ?: '–' }}<div class="text-xs {{ $muted }}">{{ $c->department ?? '' }}</div></td>
-                        <td class="px-2 py-2.5"><span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $badge[$r->status] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200' }}">{{ $labels[$r->status] ?? ucfirst(str_replace('_', ' ', $r->status)) }}</span>
+                        <td class="px-2 py-2.5"><span class="chip chip-{{ $tone[$r->status] ?? 'neutral' }}">{{ $labels[$r->status] ?? ucfirst(str_replace('_', ' ', $r->status)) }}</span>
                             @if ((float) $r->extra_time_multiplier > 1)<div class="mt-1 text-xs font-semibold text-blue-700 dark:text-blue-400">Extra time ×{{ rtrim(rtrim(number_format((float) $r->extra_time_multiplier, 2), '0'), '.') }}</div>@endif
                             @if (! $closed && in_array($r->status, ['registered', 'approved', 'assigned', 'checked_in', 'admitted'], true))
                                 <details class="mt-1">
@@ -256,7 +266,7 @@
 </section>
 
 <section class="{{ $card }} mt-5">
-    <h2 class="mb-2 text-lg font-semibold">Recent activity</h2>
+    <h2 class="mb-2 text-lg font-bold">Recent activity</h2>
     @if ($log->isEmpty())
         <p class="text-sm {{ $muted }}">Nothing yet.</p>
     @else

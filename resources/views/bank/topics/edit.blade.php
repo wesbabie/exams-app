@@ -7,13 +7,10 @@
 @endphp
 
 @section('content')
-<a href="{{ route('bank.topics.index') }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← All topics</a>
+<x-page-head title="Edit topic" :back="route('bank.topics.index')" back-label="All topics" />
 
-<div class="mt-3 max-w-lg panel">
-    <h1 class="text-xl font-bold">Edit topic</h1>
-    @if ($errors->any())
-        <div class="my-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>
-    @endif
+<div class="panel max-w-lg">
+    <x-form-errors />
     <form method="POST" action="{{ route('bank.topics.update', $topic) }}">
         @csrf @method('PUT')
 
@@ -29,7 +26,7 @@
         </select>
         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Changing the scope does not move questions already filed under this topic.</p>
 
-        <button type="submit" class="mt-5 rounded-lg bg-blue-700 px-6 py-2.5 font-semibold text-white hover:bg-blue-800">Save</button>
+        <button type="submit" class="btn btn-primary mt-6 px-6">Save</button>
     </form>
 </div>
 @endsection

@@ -14,7 +14,7 @@
     </div>
 
     <div class="mb-4 text-center">
-        <div class="text-sm font-semibold uppercase tracking-wide text-slate-500"> </div>
+        <div class="text-sm font-semibold text-slate-600">ExamSphere</div>
         <h1 class="text-xl font-bold">{{ $exam->title }}</h1>
         <p class="text-sm text-slate-600">Ranked results · {{ $exam->category->name }} · pass mark {{ $num($exam->pass_mark) }}{{ $exam->pass_mark_type === 'percentage' ? '%' : ' marks' }}@if ($exam->top_n) · shortlist: top {{ $exam->top_n }}@endif · printed {{ now()->format('j M Y, g:i A') }}</p>
     </div>

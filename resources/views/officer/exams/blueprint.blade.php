@@ -9,9 +9,7 @@
 @endphp
 
 @section('content')
-<a href="{{ route('officer.exams.show', $exam) }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← {{ $exam->title }}</a>
-<h1 class="mb-1 mt-3 text-2xl font-bold">{{ $section->title }}</h1>
-<p class="mb-4 text-sm {{ $muted }}">Each sitting gets its own paper, drawn at random from the topics below. Say how many questions to draw from each topic, so every paper has the same shape.</p>
+<x-page-head :title="$section->title" subtitle="Each sitting gets its own paper, drawn at random from the topics below. Say how many questions to draw from each topic, so every paper has the same shape." :back="route('officer.exams.show', $exam)" :back-label="$exam->title" />
 
 @include('officer.exams.partials.section-tabs')
 
@@ -52,7 +50,7 @@
                         <td class="px-2 py-2.5">
                             <input type="number" min="0" max="{{ $t->approved_count }}" name="counts[{{ $t->id }}]" value="{{ $counts[$t->id] ?? 0 }}"
                                    data-pool="{{ $t->approved_count }}" @disabled(! $editable)
-                                   class="count-input w-24 rounded-lg border border-slate-300 bg-white px-3 py-1.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900">
+                                   class="count-input field-sm w-24">
                         </td>
                         <td class="px-2 py-2.5 text-xs font-semibold pool-hint"></td>
                     </tr>
@@ -63,7 +61,7 @@
         <p class="mt-3 text-xs {{ $muted }}">Aim for a pool of about 1.5 times the number drawn, so papers in different sittings are not nearly identical. Pool size shows that ratio for each topic.</p>
 
         @if ($editable)
-            <button class="mt-4 rounded-lg bg-blue-700 px-6 py-2.5 font-semibold text-white hover:bg-blue-800">Save topic counts</button>
+            <button class="btn btn-primary mt-5 px-6">Save topic counts</button>
         @endif
     @endif
 </form>

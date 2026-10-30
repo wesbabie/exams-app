@@ -6,7 +6,7 @@
 <h1 class="text-3xl">Internship application</h1>
 
 @if (! $intake)
-    <p class="mt-3 text-slate-600 dark:text-slate-300">Registration is not open right now. Check back when the hospital announces the next intake.</p>
+    <p class="mt-3 text-slate-600 dark:text-slate-300">Registration is not open right now. Check back when the next intake is announced.</p>
     <a href="{{ route('intern.login') }}" class="mt-5 inline-block font-semibold text-blue-700 hover:underline dark:text-blue-300">Already applied? Sign in</a>
 @else
     <p class="mt-2 text-slate-600 dark:text-slate-300">{{ $intake->name }}. Registration closes {{ $intake->closes_at->format('D j M Y, g:i A') }}.</p>

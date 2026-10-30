@@ -4,17 +4,15 @@
 
 @php
     $card = 'panel';
-    $input = 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30 dark:border-slate-600 dark:bg-slate-900';
+    $input = 'field-sm';
     $muted = 'text-slate-500 dark:text-slate-400';
-    $mini = 'rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700';
+    $mini = 'btn-mini';
     $st = $statuses[$section->id];
     $room = $section->question_count - $selected->count();
 @endphp
 
 @section('content')
-<a href="{{ route('officer.exams.show', $exam) }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← {{ $exam->title }}</a>
-<h1 class="mb-1 mt-3 text-2xl font-bold">{{ $section->title }}</h1>
-<p class="mb-4 text-sm {{ $muted }}">Choose the {{ $section->question_count }} questions every candidate will answer in this section. Only approved questions are listed.</p>
+<x-page-head :title="$section->title" :subtitle="'Choose the '.$section->question_count.' questions every candidate will answer in this section. Only approved questions are listed.'" :back="route('officer.exams.show', $exam)" :back-label="$exam->title" />
 
 @include('officer.exams.partials.section-tabs')
 

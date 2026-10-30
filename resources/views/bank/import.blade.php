@@ -7,9 +7,7 @@
 @endphp
 
 @section('content')
-<a href="{{ route('bank.questions.index') }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← Question bank</a>
-<h1 class="mb-1 mt-3 text-2xl font-bold">Import questions from a CSV file</h1>
-<p class="mb-5 text-sm text-slate-500 dark:text-slate-400">Prepare the questions in Excel, then use <b>Save As → CSV (Comma delimited)</b>. Imported questions are saved as drafts for you to check before sending them for review.</p>
+<x-page-head title="Import questions" subtitle="Prepare the questions in Excel, then use Save As, CSV (Comma delimited). Imported questions are saved as drafts for you to check before sending them for review." :back="route('bank.questions.index')" back-label="Question bank" />
 
 @if (session('import_errors'))
     <div class="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">
@@ -35,7 +33,7 @@
             <input type="file" name="file" accept=".csv,text/csv" required
                    class="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-blue-700 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-blue-800">
             <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Up to 1,000 questions and 2 MB per file. If any row has a problem, nothing is imported.</p>
-            <button type="submit" class="mt-4 rounded-lg bg-blue-700 px-6 py-2.5 font-semibold text-white hover:bg-blue-800">Import</button>
+            <button type="submit" class="mt-4 btn btn-primary px-6">Import</button>
         </form>
     </section>
 

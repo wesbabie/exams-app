@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace App\Mail;
 
@@ -12,7 +12,7 @@ class ApplicantOtpMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your internship verification code');
+        return new Envelope(subject: 'Your ExamSphere verification code');
     }
 
     public function content(): Content

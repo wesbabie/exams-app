@@ -34,7 +34,7 @@
         <label for="password_confirmation" class="{{ $label }}">Repeat the new password</label>
         <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="{{ $input }}">
 
-        <button type="submit" class="mt-5 w-full rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">Save password</button>
+        <button type="submit" class="mt-5 btn btn-primary w-full py-3">Save password</button>
     </form>
 </div>
 @endsection

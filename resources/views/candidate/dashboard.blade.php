@@ -97,7 +97,7 @@
                         </label>
                     @endunless
                     <button type="submit" id="begin-btn" @disabled(! $attempt)
-                            class="mt-4 rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50">{{ $attempt ? 'Resume exam' : 'Start exam' }}</button>
+                            class="mt-4 btn btn-primary px-6 py-3 disabled:cursor-not-allowed disabled:opacity-50">{{ $attempt ? 'Resume exam' : 'Start exam' }}</button>
                 </form>
             @endif
         </section>

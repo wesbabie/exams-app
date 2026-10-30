@@ -4,7 +4,7 @@
 @source '../../storage/framework/views/*.php';
 
 /*
- * Examination System: design tokens.
+ * ExamSphere: design tokens.
  *
  * The existing views use Tailwind's "blue" and "slate" scales for brand and neutrals.
  * Redefining those two scales here re-skins every page at once: blue becomes the
@@ -148,6 +148,14 @@
         @apply px-4 py-2;
     }
 
+    .btn-mini {
+        @apply inline-flex items-center rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700;
+    }
+
+    .field-sm {
+        @apply rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/25 dark:border-slate-600 dark:bg-slate-900;
+    }
+
     .btn-neutral {
         @apply border border-slate-400 text-slate-700 hover:bg-slate-100 dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-700;
     }
@@ -236,6 +244,80 @@
 
     .meter > span.is-bad {
         background: #c8452c;
+    }
+
+    /* Click-to-mark bubble used in editors, mirrors the answer bubbles on the exam screen */
+    .mark {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 9999px;
+        border: 1.75px solid var(--color-slate-400);
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--color-slate-600);
+        cursor: pointer;
+        transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .mark:hover {
+        border-color: var(--color-blue-600);
+    }
+
+    .mark-multi {
+        border-radius: 0.65rem;
+    }
+
+    input:checked + .mark {
+        background: var(--color-green-700);
+        border-color: var(--color-green-700);
+        color: #fff;
+    }
+
+    input:focus-visible + .mark {
+        outline: 2px solid var(--color-blue-500);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .mark {
+            color: var(--color-slate-300);
+            border-color: var(--color-slate-500);
+        }
+
+        input:checked + .mark {
+            background: var(--color-green-500);
+            border-color: var(--color-green-500);
+            color: var(--color-slate-950);
+        }
+    }
+
+    /* Sticky save bar at the foot of long forms */
+    .formbar {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        margin: 1.5rem -1.25rem 0;
+        padding: 0.9rem 1.25rem;
+        border-top: 1px solid var(--color-slate-200);
+        background: color-mix(in srgb, var(--color-slate-100) 94%, transparent);
+        backdrop-filter: blur(6px);
+    }
+
+    @media (min-width: 64rem) {
+        .formbar {
+            margin-inline: -2.5rem;
+            padding-inline: 2.5rem;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .formbar {
+            border-color: var(--color-slate-700);
+            background: color-mix(in srgb, var(--color-slate-900) 94%, transparent);
+        }
     }
 
     /* Page heading block used at the top of staff pages */

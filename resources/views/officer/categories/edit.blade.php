@@ -7,13 +7,10 @@
 @endphp
 
 @section('content')
-<a href="{{ route('officer.categories.index') }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← All categories</a>
+<x-page-head title="Edit category" :back="route('officer.categories.index')" back-label="All categories" />
 
-<div class="mt-3 max-w-lg panel">
-    <h1 class="text-xl font-bold">Edit category</h1>
-    @if ($errors->any())
-        <div class="my-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>
-    @endif
+<div class="panel max-w-lg">
+    <x-form-errors />
     <form method="POST" action="{{ route('officer.categories.update', $category) }}">
         @csrf @method('PUT')
 
@@ -35,7 +32,7 @@
             <span>Active (inactive categories cannot be chosen for new exams)</span>
         </label>
 
-        <button type="submit" class="mt-5 rounded-lg bg-blue-700 px-6 py-2.5 font-semibold text-white hover:bg-blue-800">Save</button>
+        <button type="submit" class="btn btn-primary mt-6 px-6">Save</button>
     </form>
 </div>
 @endsection

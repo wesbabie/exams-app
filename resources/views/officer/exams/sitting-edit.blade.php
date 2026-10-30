@@ -7,10 +7,9 @@
 @endphp
 
 @section('content')
-<a href="{{ route('officer.exams.sittings.index', $exam) }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← Sittings</a>
+<x-page-head title="Edit sitting" :subtitle="$sitting->name" :back="route('officer.exams.sittings.index', $exam)" back-label="Sittings" />
 
-<div class="mt-3 max-w-lg panel">
-    <h1 class="text-xl font-bold">Edit sitting</h1>
+<div class="panel max-w-lg">
     @if ($errors->any())
         <div class="my-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>
     @endif
@@ -32,7 +31,7 @@
         <label for="capacity" class="mb-1 mt-3 block text-sm font-semibold">Seats</label>
         <input id="capacity" name="capacity" type="number" min="1" max="2000" value="{{ old('capacity', $sitting->capacity) }}" required class="{{ $input }}">
 
-        <button type="submit" class="mt-5 rounded-lg bg-blue-700 px-6 py-2.5 font-semibold text-white hover:bg-blue-800">Save</button>
+        <button type="submit" class="btn btn-primary mt-5 px-6">Save</button>
     </form>
 </div>
 @endsection

@@ -10,7 +10,7 @@
             <p class="mt-4 text-sm leading-relaxed text-blue-100">The server keeps the clock, so refreshing the page never gives you extra time. Your answers save as you choose them.</p>
         </div>
 
-        <p class="text-xs text-blue-200">  </p>
+        <p class="text-xs text-blue-200">Fair, timed, on screen.</p>
     </aside>
 
     <main id="main" class="flex min-h-screen flex-col justify-center bg-slate-50 px-5 py-10 sm:px-10 dark:bg-slate-900">

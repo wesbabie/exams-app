@@ -52,6 +52,6 @@
         </nav>
     </main>
 
-    {{-- <p class="text-xs text-blue-200">  ·  </p> --}}
+    <p class="text-xs text-blue-200">ExamSphere</p>
 </div>
 @endsection

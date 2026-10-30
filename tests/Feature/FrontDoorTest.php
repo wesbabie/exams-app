@@ -35,3 +35,27 @@ it('shows every staff role a dashboard with the sidebar', function () {
             ->assertSee('Sign out');
     }
 });
+
+it('carries the ExamSphere name and no hospital branding', function () {
+    $pages = [
+        '/', route('login'), route('candidate.login'), route('intern.login'),
+    ];
+
+    foreach ($pages as $url) {
+        $html = $this->get($url)->assertOk()->getContent();
+
+        expect($html)->toContain('ExamSphere')
+            ->and(strtolower($html))->not->toContain('uath')
+            ->and(strtolower($html))->not->toContain('teaching hospital')
+            ->and(strtolower($html))->not->toContain('university of');
+    }
+});
+
+it('sends the verification email under the ExamSphere name', function () {
+    $mail = new App\Mail\ApplicantOtpMail('Ada', '123456', 15);
+
+    expect($mail->envelope()->subject)->toBe('Your ExamSphere verification code');
+    $mail->assertSeeInHtml('ExamSphere');
+    $mail->assertDontSeeInHtml('UATH');
+    $mail->assertDontSeeInHtml('Teaching Hospital');
+});

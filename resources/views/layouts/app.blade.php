@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#073a27">
-    <title>@yield('title', 'Exams') · Examination System</title>
+    <title>@yield('title', 'Exams') · ExamSphere</title>
+    <link rel="icon" href="{{ url('/favicon.svg') }}" type="image/svg+xml">
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

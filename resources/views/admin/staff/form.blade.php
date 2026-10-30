@@ -20,8 +20,7 @@
 @endphp
 
 @section('content')
-<a href="{{ route('admin.staff.index') }}" class="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">← Staff accounts</a>
-<h1 class="mb-5 mt-3 text-2xl font-bold">{{ $mode === 'create' ? 'New account' : $staff->name }}</h1>
+<x-page-head :title="$mode === 'create' ? 'New account' : $staff->name" :subtitle="$mode === 'create' ? 'The person gets a temporary password and chooses their own at first sign-in.' : null" :back="route('admin.staff.index')" back-label="Staff accounts" />
 
 <div class="grid items-start gap-5 lg:grid-cols-3">
     <section class="{{ $card }} lg:col-span-2">
@@ -65,7 +64,7 @@
                 <p class="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-900">A temporary password is generated and shown once. The person must choose their own password the first time they sign in.</p>
             @endif
 
-            <button type="submit" class="mt-5 rounded-lg bg-blue-700 px-6 py-2.5 font-semibold text-white hover:bg-blue-800">{{ $mode === 'create' ? 'Create account' : 'Save changes' }}</button>
+            <button type="submit" class="mt-5 btn btn-primary px-6">{{ $mode === 'create' ? 'Create account' : 'Save changes' }}</button>
         </form>
     </section>
 

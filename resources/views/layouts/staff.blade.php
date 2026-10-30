@@ -62,10 +62,19 @@
 
 <script>
     const rail = document.getElementById('rail'), toggle = document.getElementById('rail-toggle');
-    toggle.addEventListener('click', () => {
-        const open = rail.classList.toggle('open');
+    const scrim = document.createElement('div');
+    scrim.className = 'fixed inset-0 z-10 hidden bg-black/50 lg:hidden';
+    document.body.appendChild(scrim);
+
+    function setMenu(open) {
         rail.classList.toggle('hidden', !open);
+        scrim.classList.toggle('hidden', !open);
         toggle.setAttribute('aria-expanded', open);
-    });
+        document.body.classList.toggle('overflow-hidden', open);
+    }
+
+    toggle.addEventListener('click', () => setMenu(rail.classList.contains('hidden')));
+    scrim.addEventListener('click', () => setMenu(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 </script>
 @endsection

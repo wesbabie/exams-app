@@ -4,7 +4,7 @@
 @endphp
 <div class="rounded-2xl border-2 border-slate-300 bg-white p-6 text-slate-900 print:break-inside-avoid print:rounded-none print:border-black">
     <div class="text-center">
-        <div class="text-sm font-semibold uppercase tracking-wide text-slate-500"> </div>
+        <div class="text-sm font-semibold text-slate-600">ExamSphere</div>
         <h1 class="mt-1 text-xl font-bold">Result slip</h1>
     </div>
 
@@ -29,7 +29,7 @@
     @endif
 
     <div class="mt-5 rounded-xl border-2 py-3 text-center {{ $r->passed ? 'border-green-600 text-green-800' : 'border-red-600 text-red-800' }}">
-        <div class="text-xs font-semibold uppercase tracking-wide">Result</div>
+        <div class="text-sm font-semibold">Result</div>
         <div class="text-2xl font-bold">{{ $r->passed ? 'PASS' : 'FAIL' }}</div>
         @if ($exam->top_n && $row['shortlisted'])<div class="mt-1 text-sm font-semibold">Shortlisted</div>@endif
     </div>

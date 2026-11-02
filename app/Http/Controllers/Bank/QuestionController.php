@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Bank;
 
@@ -34,7 +34,7 @@ class QuestionController extends Controller
             ->when($request->filled('q'), fn ($q) => $q->where('stem', 'like', '%'.$request->query('q').'%'))
             ->when($request->boolean('overdue'), fn ($q) => $q->where('status', 'approved')->whereDate('review_due_on', '<', today()))
             ->latest('updated_at')
-            ->paginate(20)
+            ->paginate(10)
             ->withQueryString();
 
         return view('bank.questions.index', [

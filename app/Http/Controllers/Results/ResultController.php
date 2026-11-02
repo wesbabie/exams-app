@@ -73,6 +73,7 @@ class ResultController extends Controller
         $all = $rows->pluck('result');
 
         return view('results.show', [
+            'notifications' => app(\App\Services\ResultNotifier::class)->summary($exam),
             'exam' => $exam,
             'rows' => $shown,
             'outcome' => $outcome,
@@ -158,14 +159,42 @@ class ResultController extends Controller
             return $this->back($exam, 'error', "{$writing} candidate(s) are still writing. Wait until they finish, or run php artisan exams:finalize-attempts, then release.");
         }
 
-        DB::transaction(function () use ($exam) {
+        DB::transaction(function () use ($exam, $request) {
             $this->ranking->persist($exam);
             $exam->update(['results_released_at' => now()]);
             Result::where('exam_id', $exam->id)->update(['released_at' => now()]);
-            RegistrationLog::record($exam->id, 'results_released', 'Candidates see: '.$exam->result_release);
+            RegistrationLog::record($exam->id, 'results_released', 'Candidates see: '.$exam->result_release.($request->boolean('notify') ? ' · candidates emailed' : ''));
         });
 
+        if ($request->boolean('notify') && $exam->result_release !== 'hidden') {
+            $this->emailCandidates($exam);
+
+            return $this->back($exam, 'status', 'Results released. Ranks and the shortlist are saved. Emails to candidates are going out now.');
+        }
+
         return $this->back($exam, 'status', 'Results released. Ranks and the shortlist are saved, and result slips are available.');
+    }
+
+    /** Email (or email again) everyone who has not yet been told about the current release. */
+    public function notify(Exam $exam): RedirectResponse
+    {
+        if (! $exam->results_released_at) {
+            return $this->back($exam, 'error', 'Release the results first.');
+        }
+
+        if ($exam->result_release === 'hidden') {
+            return $this->back($exam, 'error', 'This exam is set to show candidates nothing, so there is nothing to tell them.');
+        }
+
+        $this->emailCandidates($exam);
+
+        return $this->back($exam, 'status', 'Emails are going out to candidates who have not been told yet.');
+    }
+
+    /** Runs after the page has been sent, so the officer is not left waiting on the mail server. */
+    private function emailCandidates(Exam $exam): void
+    {
+        dispatch(fn () => app(\App\Services\ResultNotifier::class)->notify($exam->fresh()))->afterResponse();
     }
 
     public function withdraw(Exam $exam): RedirectResponse

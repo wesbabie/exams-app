@@ -26,3 +26,4 @@ require __DIR__.'/bank.php';
 require __DIR__.'/invigilator.php';
 require __DIR__.'/results.php';
 require __DIR__.'/admin.php';
+require __DIR__.'/audit.php';

@@ -59,3 +59,12 @@ it('sends the verification email under the ExamSphere name', function () {
     $mail->assertDontSeeInHtml('UATH');
     $mail->assertDontSeeInHtml('Teaching Hospital');
 });
+
+it('ships the ExamSphere logo files and uses them', function () {
+    foreach (['brand/examsphere-logo.png', 'brand/examsphere-mark.png', 'favicon-32.png', 'apple-touch-icon.png'] as $file) {
+        expect(file_exists(public_path($file)))->toBeTrue("Missing public/{$file}");
+    }
+
+    $this->get('/')->assertOk()->assertSee('brand/examsphere-mark.png', false)->assertSee('favicon-32.png', false)->assertSee('Every Exam. One Platform.');
+    $this->get('/no-such-page')->assertNotFound()->assertSee('brand/examsphere-logo.png', false);
+});

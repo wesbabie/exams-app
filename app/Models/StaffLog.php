@@ -29,5 +29,11 @@ class StaffLog extends Model
     public static function record(?int $targetId, string $action, ?string $detail = null): void
     {
         static::create(['actor_id' => auth()->id(), 'target_id' => $targetId, 'action' => $action, 'detail' => $detail]);
+
+        \App\Support\Audit::record('staff.'.$action, 'accounts', \App\Support\AuditCatalog::staff($action).($detail ? ' · '.$detail : ''), [
+            'subject_type' => $targetId ? 'user' : null,
+            'subject_id' => $targetId,
+            'subject_label' => $targetId ? \App\Models\User::whereKey($targetId)->value('name') : null,
+        ]);
     }
 }

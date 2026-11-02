@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [\App\Http\Middleware\RecordStaffActivity::class]);
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('intern', 'intern/*') ? route('intern.login') : route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {

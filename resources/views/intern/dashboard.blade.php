@@ -14,12 +14,13 @@
 
 @section('content')
 @php
-    $reached = match ($applicant->status) { 'draft', 'returned' => 2, 'submitted' => 3, 'approved' => ($registration?->examSession ? 5 : 4), default => 3 };
-    $steps = ['Create account', 'Details and documents', 'Review', 'Sitting assigned', 'Exam slip'];
+    $hasSitting = (bool) $registration?->examSession;
+    $reached = match ($applicant->status) { 'draft', 'returned' => 2, 'submitted' => 3, 'approved' => ! $hasSitting ? 4 : ($result ? 7 : 6), default => 3 };
+    $steps = ['Create account', 'Details and documents', 'Review', 'Sitting assigned', 'Exam slip', 'Result'];
 @endphp
-<ol class="mb-6 grid grid-cols-5 gap-1.5" aria-label="Application progress">
+<ol class="mb-6 grid grid-cols-3 gap-x-1.5 gap-y-3 sm:grid-cols-6" aria-label="Application progress">
     @foreach ($steps as $i => $label)
-        @php $n = $i + 1; $done = $n < $reached || ($n === $reached && $applicant->status === 'approved' && $n >= 4); $now = $n === $reached && ! $done; @endphp
+        @php $n = $i + 1; $done = $n < $reached; $now = $n === $reached; @endphp
         <li class="min-w-0" @if ($now) aria-current="step" @endif>
             <div class="h-1.5 rounded-full {{ $done ? 'bg-blue-700' : ($now ? 'bg-marker-400' : 'bg-slate-300 dark:bg-slate-600') }}"></div>
             <p class="mt-1.5 text-xs leading-tight {{ $now ? 'font-bold' : 'text-slate-600 dark:text-slate-300' }}">{{ $label }}</p>
@@ -75,6 +76,12 @@
                 <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Bring your slip and passport on the day. Your PIN is given to you at check-in.</p>
             @else
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">You will see your exam date, time and venue here once a sitting is assigned.</p>
+            @endif
+
+            @if ($result)
+                <div class="mt-5">@include('candidate.partials.result-card', ['result' => $result])</div>
+            @elseif ($registration?->status === 'completed')
+                <p class="mt-4 rounded-lg bg-slate-100 p-4 text-sm dark:bg-slate-900">You have completed the exam. Your result will appear here once the exam office releases it.</p>
             @endif
             @break
 

@@ -20,6 +20,7 @@ Route::prefix('results')
             Route::get('exams/{exam}/analysis', [ResultController::class, 'analysis'])->name('exams.analysis');
             Route::post('exams/{exam}/release', [ResultController::class, 'release'])->name('exams.release');
             Route::post('exams/{exam}/withdraw', [ResultController::class, 'withdraw'])->name('exams.withdraw');
+            Route::post('exams/{exam}/notify', [ResultController::class, 'notify'])->name('exams.notify');
             Route::post('exams/{exam}/recalculate', [ResultController::class, 'recalculate'])->name('exams.recalculate');
             Route::get('exams/{exam}/slips', [ResultController::class, 'slips'])->name('exams.slips');
             Route::get('slips/{result}', [ResultController::class, 'slip'])->name('slip');

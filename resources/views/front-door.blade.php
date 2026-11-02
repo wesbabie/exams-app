@@ -44,6 +44,16 @@
                 <a href="{{ route('intern.login') }}" class="block rounded-xl px-4 pb-3 text-sm font-semibold text-blue-700 hover:underline dark:text-blue-300">Already applied? Sign in</a>
             @endif
 
+            <a href="{{ route('myresults.request') }}" class="group flex items-center justify-between gap-4 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-slate-700">
+                <span>
+                    <span class="font-display block text-xl font-bold">I want to see my result</span>
+                    <span class="mt-0.5 block text-sm text-slate-500 dark:text-slate-400">Staff: we email you a code. Interns: sign in to your application.</span>
+                </span>
+                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-slate-300 group-hover:border-blue-700 group-hover:text-blue-700 dark:border-slate-500" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </span>
+            </a>
+
             <div class="mx-4 my-1 border-t border-slate-200 dark:border-slate-700"></div>
 
             <a href="{{ route('login') }}" class="flex items-center justify-between gap-4 rounded-xl p-4 text-sm hover:bg-blue-50 dark:hover:bg-slate-700">
@@ -52,6 +62,5 @@
         </nav>
     </main>
 
-    <p class="text-xs text-blue-200">ExamSphere</p>
 </div>
 @endsection

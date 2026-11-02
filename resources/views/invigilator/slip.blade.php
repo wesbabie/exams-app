@@ -13,7 +13,7 @@
 
     <div class="rounded-2xl border-2 border-slate-300 bg-white p-6 text-slate-900 dark:border-slate-600 print:rounded-none print:border-black">
         <div class="text-center">
-            <div class="text-sm font-semibold text-slate-600">ExamSphere</div>
+            <img src="{{ asset('brand/examsphere-logo.png') }}" alt="ExamSphere" width="760" height="520" class="mx-auto h-20 w-auto">
             <h1 class="font-display mt-1 text-2xl font-bold">Candidate slip</h1>
         </div>
 

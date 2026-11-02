@@ -40,6 +40,9 @@
     @case('key')
         <circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3"/>
         @break
+    @case('history')
+        <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/>
+        @break
     @case('check')
         <path d="m5 12.5 4.5 4.5L19 7.5"/>
         @break

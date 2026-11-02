@@ -125,6 +125,17 @@ class ExamRegistration extends Model
         if ($this->pin_failed_attempts >= $maxAttempts) {
             $this->forceFill(['locked_at' => now()])->save();
 
+            $candidate = $this->candidate;
+            $label = $candidate?->file_number ?? $candidate?->application_number ?? ('#'.$this->id);
+            \App\Support\Audit::record('candidate.locked', 'candidates', 'Account locked after wrong PINs · '.$label, [
+                'actor' => null,
+                'subject_type' => 'registration',
+                'subject_id' => $this->id,
+                'subject_label' => $label,
+                'exam_id' => $this->exam_id,
+                'meta' => ['failed_attempts' => $this->pin_failed_attempts],
+            ]);
+
             return true;
         }
 

@@ -16,6 +16,9 @@ class DashboardController extends Controller
             ? $applicant->registrations()->with(['exam', 'examSession'])->latest('id')->first()
             : null;
 
-        return view('intern.dashboard', compact('applicant', 'registration'));
+        // A released result, if the exam is set to show candidates one
+        $result = $registration ? \App\Support\CandidateResults::forRegistrations([$registration->id])->first() : null;
+
+        return view('intern.dashboard', compact('applicant', 'registration', 'result'));
     }
 }

@@ -32,5 +32,15 @@ class RegistrationLog extends Model
             'eligible_list_id' => $listId,
             'user_id' => auth()->id(),
         ]);
+
+        [$category, $text] = \App\Support\AuditCatalog::legacy($action);
+
+        \App\Support\Audit::record('reg.'.$action, $category, $text.($detail ? ' · '.$detail : ''), [
+            'subject_type' => $registrationId ? 'registration' : null,
+            'subject_id' => $registrationId,
+            'subject_label' => $detail,
+            'exam_id' => $examId,
+            'reason' => $reason,
+        ]);
     }
 }

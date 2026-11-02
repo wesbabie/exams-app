@@ -93,7 +93,7 @@
 
                     <div class="min-w-[12rem] flex-1">
                         <p class="font-display text-xl font-bold leading-tight">{{ $c?->full_name ?? '–' }}</p>
-                        <p class="text-sm tabular-nums {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }}</p>
+                        <p class="text-sm tabular-nums {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }} · <a href="{{ route('registrations.history', $r) }}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">History</a></p>
                         @if ($c && trim(($c->cadre ?? '').' '.($c->department ?? '')))<p class="text-sm {{ $muted }}">{{ trim(($c->cadre ?? '').' '.($c->level ?? '')) }}{{ ($c->department ?? '') ? ' · '.$c->department : '' }}</p>@endif
                     </div>
 

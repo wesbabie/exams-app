@@ -203,7 +203,7 @@
                     <tr class="border-b border-slate-200 align-top dark:border-slate-700">
                         <td class="py-2.5 pr-2">
                             <div class="font-display text-base font-bold leading-tight">{{ $c?->full_name ?? '–' }}</div>
-                            <div class="text-xs tabular-nums {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }}</div>
+                            <div class="text-xs tabular-nums {{ $muted }}">{{ $c?->file_number ?? $c?->application_number }} · <a href="{{ route('registrations.history', $r) }}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">History</a></div>
                         </td>
                         <td class="px-2 py-2.5">{{ trim(($c->cadre ?? '').' '.($c->level ?? '')) ?: '–' }}<div class="text-xs {{ $muted }}">{{ $c->department ?? '' }}</div></td>
                         <td class="px-2 py-2.5"><span class="chip chip-{{ $tone[$r->status] ?? 'neutral' }}">{{ $labels[$r->status] ?? ucfirst(str_replace('_', ' ', $r->status)) }}</span>

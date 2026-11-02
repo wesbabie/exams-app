@@ -11,7 +11,7 @@
             ! $route => 'Coming soon',
             str_starts_with($route, 'invigilator.') => 'On exam day',
             str_starts_with($route, 'results.') => 'Afterwards',
-            str_starts_with($route, 'admin.') => 'Administration',
+            str_starts_with($route, 'admin.'), str_starts_with($route, 'audit.') => 'Administration',
             default => 'Prepare',
         };
         $groups[$key][] = $area;

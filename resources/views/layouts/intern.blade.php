@@ -4,7 +4,7 @@
 @php $applicant = auth('applicant')->user(); @endphp
 <header class="bg-blue-900 text-white">
     <div class="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-5 py-3.5">
-        <x-brand :sub="false" class="text-white" />
+        <x-brand :dark="true" :sub="false" class="text-white" />
         @if ($applicant)
             <div class="flex items-center gap-3 text-sm">
                 <span class="hidden sm:inline">{{ $applicant->full_name }}</span>

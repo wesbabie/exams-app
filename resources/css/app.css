@@ -42,8 +42,8 @@
 
     /* Accent: marker yellow, used sparingly */
     --color-marker-100: #fbefc2;
-    --color-marker-300: #f6d96b;
-    --color-marker-400: #f2c230;
+    --color-marker-300: #f1c451;
+    --color-marker-400: #e9a817;
     --color-marker-600: #a87b00;
 
     --shadow-sm: 0 1px 0 rgb(19 30 26 / 0.04), 0 1px 2px rgb(19 30 26 / 0.06);
@@ -332,7 +332,7 @@
     /* Answer-sheet bubbles: the motif. Dark panels (front door, sign-in). */
     .omr-field {
         background-color: var(--color-blue-900);
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='432' height='288'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.12' stroke-width='1.5'%3E%3Cg id='r'%3E%3Ccircle cx='18' cy='24' r='9'/%3E%3Ccircle cx='54' cy='24' r='9'/%3E%3Ccircle cx='90' cy='24' r='9'/%3E%3Ccircle cx='126' cy='24' r='9'/%3E%3Ccircle cx='162' cy='24' r='9'/%3E%3Ccircle cx='198' cy='24' r='9'/%3E%3Ccircle cx='234' cy='24' r='9'/%3E%3Ccircle cx='270' cy='24' r='9'/%3E%3Ccircle cx='306' cy='24' r='9'/%3E%3Ccircle cx='342' cy='24' r='9'/%3E%3Ccircle cx='378' cy='24' r='9'/%3E%3Ccircle cx='414' cy='24' r='9'/%3E%3C/g%3E%3Cuse href='%23r' y='36'/%3E%3Cuse href='%23r' y='72'/%3E%3Cuse href='%23r' y='108'/%3E%3Cuse href='%23r' y='144'/%3E%3Cuse href='%23r' y='180'/%3E%3Cuse href='%23r' y='216'/%3E%3Cuse href='%23r' y='252'/%3E%3C/g%3E%3Cg fill='%23f2c230'%3E%3Ccircle cx='126' cy='96' r='9'/%3E%3Ccircle cx='342' cy='204' r='9'/%3E%3Ccircle cx='198' cy='276' r='9'/%3E%3C/g%3E%3Cg fill='%23fff' fill-opacity='.8'%3E%3Ccircle cx='270' cy='24' r='9'/%3E%3Ccircle cx='54' cy='168' r='9'/%3E%3C/g%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='432' height='288'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.12' stroke-width='1.5'%3E%3Cg id='r'%3E%3Ccircle cx='18' cy='24' r='9'/%3E%3Ccircle cx='54' cy='24' r='9'/%3E%3Ccircle cx='90' cy='24' r='9'/%3E%3Ccircle cx='126' cy='24' r='9'/%3E%3Ccircle cx='162' cy='24' r='9'/%3E%3Ccircle cx='198' cy='24' r='9'/%3E%3Ccircle cx='234' cy='24' r='9'/%3E%3Ccircle cx='270' cy='24' r='9'/%3E%3Ccircle cx='306' cy='24' r='9'/%3E%3Ccircle cx='342' cy='24' r='9'/%3E%3Ccircle cx='378' cy='24' r='9'/%3E%3Ccircle cx='414' cy='24' r='9'/%3E%3C/g%3E%3Cuse href='%23r' y='36'/%3E%3Cuse href='%23r' y='72'/%3E%3Cuse href='%23r' y='108'/%3E%3Cuse href='%23r' y='144'/%3E%3Cuse href='%23r' y='180'/%3E%3Cuse href='%23r' y='216'/%3E%3Cuse href='%23r' y='252'/%3E%3C/g%3E%3Cg fill='%23e9a817'%3E%3Ccircle cx='126' cy='96' r='9'/%3E%3Ccircle cx='342' cy='204' r='9'/%3E%3Ccircle cx='198' cy='276' r='9'/%3E%3C/g%3E%3Cg fill='%23fff' fill-opacity='.8'%3E%3Ccircle cx='270' cy='24' r='9'/%3E%3Ccircle cx='54' cy='168' r='9'/%3E%3C/g%3E%3C/svg%3E");
         background-size: 432px 288px;
     }
 

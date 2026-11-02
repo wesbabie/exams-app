@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#073a27">
     <title>@yield('title', 'Exams') · ExamSphere</title>
-    <link rel="icon" href="{{ url('/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

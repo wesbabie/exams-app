@@ -9,3 +9,4 @@ Route::get('/', function () {
 require __DIR__.'/candidate.php';
 require __DIR__.'/staff.php';
 require __DIR__.'/intern.php';
+require __DIR__.'/my-results.php';

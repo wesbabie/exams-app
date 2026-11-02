@@ -27,6 +27,16 @@ class Result extends Model
         return $this->belongsTo(Attempt::class);
     }
 
+    public function exam(): BelongsTo
+    {
+        return $this->belongsTo(Exam::class);
+    }
+
+    public function registration(): BelongsTo
+    {
+        return $this->belongsTo(ExamRegistration::class, 'exam_registration_id');
+    }
+
     public function sections(): HasMany
     {
         return $this->hasMany(SectionResult::class);

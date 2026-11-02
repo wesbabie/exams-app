@@ -6,7 +6,7 @@
         'staff.dashboard' => 'grid', 'officer.exams.index' => 'exams', 'officer.categories.index' => 'layers',
         'officer.applicants.index' => 'user-plus', 'officer.intakes.index' => 'calendar', 'bank.questions.index' => 'help',
         'bank.topics.index' => 'hash', 'invigilator.sittings.index' => 'user-check', 'results.index' => 'chart',
-        'admin.staff.index' => 'users',
+        'admin.staff.index' => 'users', 'audit.index' => 'history',
     ];
 @endphp
 
@@ -14,7 +14,7 @@
 <div class="min-h-screen lg:pl-64">
     {{-- Mobile top bar --}}
     <div class="sticky top-0 z-30 flex items-center justify-between bg-blue-900 px-4 py-3 text-white lg:hidden">
-        <x-brand :sub="false" class="text-white" />
+        <x-brand :dark="true" :sub="false" class="text-white" />
         <button type="button" id="rail-toggle" aria-expanded="false" aria-controls="rail" class="rounded-lg p-2 hover:bg-white/10">
             <x-icon name="menu" /><span class="sr-only">Menu</span>
         </button>

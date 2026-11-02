@@ -3,7 +3,7 @@
 @section('body')
 <header class="bg-blue-900 text-white">
     <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3.5">
-        <x-brand :sub="false" class="text-white" />
+        <x-brand :dark="true" :sub="false" class="text-white" />
         <div class="flex items-center gap-3 text-sm">
             <span class="hidden sm:inline">@yield('who')</span>
             <form method="POST" action="@yield('logout_action')">

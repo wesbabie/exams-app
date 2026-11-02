@@ -28,6 +28,13 @@
     <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>
 @endif
 
+@php $noEmail = $rows->filter(fn ($r) => $r['registration']->candidate_type === 'staff' && blank($r['candidate']->email))->count(); @endphp
+@if ($noEmail > 0)
+    <div class="mb-5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+        <b>{{ $noEmail }} staff candidate{{ $noEmail === 1 ? ' has' : 's have' }} no email address on file.</b> They cannot get a code to see their result online, so give them a printed result slip.
+    </div>
+@endif
+
 <div class="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
     <x-stat label="Submitted" :value="$stats['submitted']" />
     <x-stat label="Passed" :value="$stats['passed']" :sub="$stats['submitted'] ? round($stats['passed'] / $stats['submitted'] * 100).'%' : null">
@@ -60,17 +67,42 @@
         @endif
 
         @if ($canManage)
-            <div class="mt-4 flex flex-wrap gap-2">
+            <div class="mt-4 flex flex-wrap items-center gap-2">
                 @unless ($exam->results_released_at)
-                    <form method="POST" action="{{ route('results.exams.release', $exam) }}" onsubmit="return confirm('Release these results? Ranks and the shortlist will be saved.')">@csrf
-                        <button class="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800">Release results</button>
+                    <form method="POST" action="{{ route('results.exams.release', $exam) }}" onsubmit="return confirm('Release these results? Ranks and the shortlist will be saved.')" class="w-full">
+                        @csrf
+                        @if ($exam->result_release !== 'hidden')
+                            <label class="mb-3 flex cursor-pointer items-start gap-2 text-sm">
+                                <input type="checkbox" name="notify" value="1" checked class="mt-0.5 h-5 w-5 shrink-0 accent-blue-700">
+                                <span><b>Email candidates that their results are out.</b><br><span class="{{ $muted }}">The email only says the result is ready and how to open it. It never contains the result.</span></span>
+                            </label>
+                        @endif
+                        <button class="btn btn-good btn-sm">Release results</button>
                     </form>
                 @else
-                    <a href="{{ route('results.exams.slips', $exam) }}" target="_blank" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Print all result slips</a>
+                    <a href="{{ route('results.exams.slips', $exam) }}" target="_blank" class="btn btn-primary btn-sm">Print all result slips</a>
                     <form method="POST" action="{{ route('results.exams.withdraw', $exam) }}" onsubmit="return confirm('Withdraw the release? Results are hidden again.')">@csrf<button class="{{ $btn }}">Withdraw release</button></form>
                 @endunless
                 <form method="POST" action="{{ route('results.exams.recalculate', $exam) }}">@csrf<button class="{{ $btn }}">Recalculate ranks</button></form>
             </div>
+
+            @if ($exam->results_released_at && $exam->result_release !== 'hidden')
+                @php $n = $notifications; $told = $n['sent']; @endphp
+                <div class="mt-5 border-t border-slate-200 pt-4 dark:border-slate-700">
+                    <h3 class="font-display text-base font-bold">Emails to candidates</h3>
+                    <div class="mt-2 flex items-baseline justify-between text-sm"><span class="{{ $muted }}">Told that their result is ready</span><b class="tabular-nums">{{ $told }} of {{ $n['total'] }}</b></div>
+                    <div class="mt-1.5"><x-meter :value="$told" :max="max(1, $n['total'])" :tone="$n['failed'] > 0 ? 'warn' : null" label="Candidates emailed" /></div>
+                    <p class="mt-2 text-sm {{ $muted }}">
+                        @if ($n['failed'] > 0)<b class="text-red-700 dark:text-red-400">{{ $n['failed'] }} could not be sent.</b> @endif
+                        @if ($n['no_email'] > 0){{ $n['no_email'] }} have no email address, so they need a printed slip. @endif
+                        @if ($n['waiting'] > 0){{ $n['waiting'] }} not emailed yet. @endif
+                        @if ($n['failed'] === 0 && $n['no_email'] === 0 && $n['waiting'] === 0)Everyone has been told.@endif
+                    </p>
+                    @if ($n['failed'] > 0 || $n['waiting'] > 0)
+                        <form method="POST" action="{{ route('results.exams.notify', $exam) }}" class="mt-3">@csrf<button class="btn btn-outline btn-sm">{{ $told === 0 && $n['failed'] === 0 ? 'Email candidates now' : 'Email the ones not yet told' }}</button></form>
+                    @endif
+                </div>
+            @endif
         @endif
     </section>
 

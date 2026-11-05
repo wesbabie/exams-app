@@ -156,7 +156,12 @@ class ExamTakeController extends Controller
         $type = $request->input('type');
 
         if ($attempt && in_array($type, ['tab_hidden', 'tab_visible', 'fullscreen_exit'], true)) {
-            $this->attempts->event($attempt, $type, $request);
+            // On return the page says how long the candidate was away
+            $away = $type === 'tab_visible' && is_numeric($request->input('away_seconds'))
+                ? max(0, min(86400, (int) $request->input('away_seconds')))
+                : null;
+
+            $this->attempts->event($attempt, $type, $request, $away !== null ? ['away_seconds' => $away] : null);
         }
 
         return response()->json(['ok' => true]);

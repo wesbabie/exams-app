@@ -43,7 +43,7 @@ class RegisterController extends Controller
             'other_names' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:applicants,email'],
             'phone' => ['required', 'regex:'.PhoneNumber::PATTERN, 'unique:applicants,phone'],
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+            'password' => ['required', 'confirmed', Password::min(\App\Support\Settings::int('intern.min_password_length'))->letters()->numbers()],
         ], [
             'email.unique' => 'An application already exists for this email address. Sign in instead.',
             'phone.unique' => 'An application already exists for this phone number. Sign in instead.',

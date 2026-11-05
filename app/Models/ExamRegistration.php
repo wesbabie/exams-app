@@ -105,6 +105,22 @@ class ExamRegistration extends Model
             || $this->attempts()->where('status', 'in_progress')->exists();
     }
 
+    /**
+     * Registrations that belong to a file number (staff) or application number (interns) and still hold a PIN.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, static>
+     */
+    public static function withPinFor(string $number): \Illuminate\Database\Eloquent\Collection
+    {
+        $staff = StaffCandidate::where('file_number', $number)->pluck('id');
+        $applicants = Applicant::where('application_number', $number)->pluck('id');
+
+        return static::whereNotNull('pin_hash')->where(fn ($q) => $q
+            ->where(fn ($w) => $w->where('candidate_type', 'staff')->whereIn('candidate_id', $staff))
+            ->orWhere(fn ($w) => $w->where('candidate_type', 'applicant')->whereIn('candidate_id', $applicants)))
+            ->get();
+    }
+
     public function pinIsValid(string $pin): bool
     {
         if (! $this->pin_hash) {
@@ -163,7 +179,7 @@ class ExamRegistration extends Model
         $this->forceFill([
             'pin_hash' => Hash::make($pin),
             'pin_issued_at' => now(),
-            'pin_expires_at' => $this->examSession?->ends_at?->copy()->addHour(),
+            'pin_expires_at' => $this->examSession?->ends_at?->copy()->addMinutes(\App\Support\Settings::int('exam.pin_grace_minutes')),
             'pin_failed_attempts' => 0,
             'locked_at' => null,
         ])->save();

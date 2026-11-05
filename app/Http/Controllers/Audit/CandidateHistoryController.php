@@ -39,11 +39,13 @@ class CandidateHistoryController extends Controller
                 $text = 'Question '.$meta['position'].' timed out';
             }
 
+            $away = isset($meta['away_seconds']) ? 'Away for '.$meta['away_seconds'].' second'.($meta['away_seconds'] == 1 ? '' : 's') : null;
+
             return [
                 'at' => $e->created_at,
                 'who' => $name,
                 'text' => $text,
-                'detail' => isset($meta['reason']) ? 'Reason: '.str_replace('_', ' ', $meta['reason']) : null,
+                'detail' => $away ?? (isset($meta['reason']) ? 'Reason: '.str_replace('_', ' ', $meta['reason']) : null),
                 'kind' => in_array($e->event_type, ['tab_hidden', 'fullscreen_exit'], true) ? 'flag' : 'candidate',
                 'ip' => $e->ip_address,
             ];

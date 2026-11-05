@@ -16,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // One reader of the system settings per request
+        $this->app->singleton(\App\Support\Settings::class);
     }
 
     /**

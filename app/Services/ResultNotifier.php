@@ -56,7 +56,7 @@ class ResultNotifier
 
             [$url, $howTo] = $registration->candidate_type === 'applicant'
                 ? [route('intern.login'), 'Sign in to your internship application to see it.']
-                : [route('myresults.request'), 'Open the link, enter your file number, and we will email you a one-time code to see it.'];
+                : [route('myresults.request'), 'Open the link and enter your file number with the PIN from your exam slip. If you lost the PIN, you can ask for a one-time code by email on the same page.'];
 
             try {
                 Mail::to($candidate->email)->send(new ResultsReleasedMail($candidate->first_name, $exam->title, $url, $howTo));

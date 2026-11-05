@@ -18,7 +18,6 @@ use Illuminate\Support\Str;
 class AttemptService
 {
     /** Seconds after a deadline in which a late save is still accepted (network lag). */
-    public const GRACE_SECONDS = 2;
 
     public function activeAttempt(ExamRegistration $registration): ?Attempt
     {
@@ -140,7 +139,7 @@ class AttemptService
     {
         return $aq->status === 'pending'
             && $aq->deadline_at
-            && now()->lte($aq->deadline_at->copy()->addSeconds(self::GRACE_SECONDS));
+            && now()->lte($aq->deadline_at->copy()->addSeconds(\App\Support\Settings::int('exam.timer_grace_seconds')));
     }
 
     /** Lock a question, score it, and move on. */

@@ -5,7 +5,7 @@
 @section('content')
 <div class="panel p-6">
     <h1 class="text-2xl font-bold">Verify your email</h1>
-    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Enter the 6-digit code we sent to <b>{{ $applicant->email }}</b>. It expires in {{ \App\Models\Applicant::OTP_MINUTES }} minutes.</p>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Enter the 6-digit code we sent to <b>{{ $applicant->email }}</b>. It expires in {{ \App\Models\Applicant::otpMinutes() }} minutes.</p>
 
     @if ($errors->any())
         <div class="mt-4 rounded-lg border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" role="alert">{{ $errors->first() }}</div>

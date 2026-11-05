@@ -13,7 +13,6 @@ use Illuminate\View\View;
 
 class CandidateLoginController extends Controller
 {
-    private const MAX_PIN_ATTEMPTS = 5;   // wrong PINs before the account locks
     private const MAX_REQUESTS = 10;      // login requests per minute, per number and IP
 
     public function create(Request $request): View|RedirectResponse
@@ -55,7 +54,7 @@ class CandidateLoginController extends Controller
         if (! $registration || ! $registration->pinIsValid($data['pin'])) {
             RateLimiter::hit($throttleKey, 60);
 
-            if ($registration && $registration->recordFailedPin(self::MAX_PIN_ATTEMPTS)) {
+            if ($registration && $registration->recordFailedPin(\App\Support\Settings::int('exam.max_wrong_pins'))) {
                 throw ValidationException::withMessages([
                     'exam_number' => 'Too many wrong PINs. This account is now locked. Please ask an invigilator to unlock it.',
                 ]);

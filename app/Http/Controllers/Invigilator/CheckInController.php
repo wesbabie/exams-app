@@ -16,7 +16,6 @@ use Illuminate\View\View;
 
 class CheckInController extends Controller
 {
-    private const CHECK_IN_OPENS_HOURS_BEFORE = 2;
 
     // ---- Screens ----
 
@@ -84,7 +83,7 @@ class CheckInController extends Controller
             'counts' => $all->countBy('status'),
             'lockedCount' => $all->whereNotNull('locked_at')->count(),
             'elsewhere' => $elsewhere,
-            'checkInOpensAt' => $sitting->starts_at->copy()->subHours(self::CHECK_IN_OPENS_HOURS_BEFORE),
+            'checkInOpensAt' => $sitting->starts_at->copy()->subHours(\App\Support\Settings::int('checkin.opens_hours_before')),
         ]);
     }
 
@@ -121,7 +120,7 @@ class CheckInController extends Controller
             return $this->back($sitting, 'error', 'This sitting is closed.');
         }
 
-        $opens = $sitting->starts_at->copy()->subHours(self::CHECK_IN_OPENS_HOURS_BEFORE);
+        $opens = $sitting->starts_at->copy()->subHours(\App\Support\Settings::int('checkin.opens_hours_before'));
         if (now()->lt($opens)) {
             return $this->back($sitting, 'error', 'Check-in opens at '.$opens->format('g:i A, j M').'.');
         }

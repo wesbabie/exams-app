@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Officer;
 
@@ -40,7 +40,7 @@ class ExamCandidateController extends Controller
                 $q->where('candidate_type', 'staff')->whereIn('candidate_id', $ids);
             })
             ->orderBy('id')
-            ->paginate(30)
+            ->paginate(10)
             ->withQueryString();
 
         $sittings = $exam->sessions()

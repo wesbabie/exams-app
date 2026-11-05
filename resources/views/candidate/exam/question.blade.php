@@ -9,7 +9,10 @@
      data-remaining-ms="{{ $remainingMs }}"
      data-total-ms="{{ $aq->seconds_allowed * 1000 }}"
      data-save-url="{{ route('candidate.exam.answer') }}"
-     data-event-url="{{ route('candidate.exam.event') }}">
+     data-event-url="{{ route('candidate.exam.event') }}"
+     data-warn-seconds="{{ \App\Support\Settings::int('exam.warn_seconds') }}"
+     data-critical-seconds="{{ \App\Support\Settings::int('exam.critical_seconds') }}"
+     data-tab-grace-ms="{{ \App\Support\Settings::int('exam.tab_grace_seconds') * 1000 }}">
 
     <div class="drip" aria-hidden="true"><div id="bar" data-level="ok"></div></div>
 
@@ -59,6 +62,9 @@
     const isLast = @json($isLast);
     const end = performance.now() + (+root.dataset.remainingMs);
     let timeUp = false;
+    const WARN_S = Number(root.dataset.warnSeconds) || 10;          // the clock turns amber ...
+    const CRITICAL_S = Number(root.dataset.criticalSeconds) || 5;   // ... then red (both set under System settings)
+    let leaving = false;   // true while this page is being replaced by the next question (or reloaded)
 
     // ---- Timer (the server holds the real deadline; this only displays it) ----
     function tick() {
@@ -67,7 +73,7 @@
         timer.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
         bar.style.width = Math.min(100, ms / totalMs * 100) + '%';
 
-        const level = s <= 5 ? 'bad' : s <= 10 ? 'warn' : 'ok';
+        const level = s <= CRITICAL_S ? 'bad' : s <= WARN_S ? 'warn' : 'ok';
         timer.dataset.level = level;
         bar.dataset.level = level;
         note.classList.toggle('hidden', level === 'ok' || timeUp);
@@ -77,6 +83,7 @@
             timer.textContent = 'Time up';
             form.querySelectorAll('input').forEach(i => i.disabled = true);
             status.textContent = 'Time is up. Moving to the next question…';
+            leaving = true;
             setTimeout(() => location.reload(), 900);   // the server closes the question and serves the next one
         }
     }
@@ -95,7 +102,7 @@
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
                     body: JSON.stringify({ question: qid, selected: selected() }),
                 });
-                if (r.status === 409) { location.reload(); return; }
+                if (r.status === 409) { leaving = true; location.reload(); return; }
                 if (!r.ok) throw new Error('save failed');
                 status.textContent = 'Saved ✓';
             } catch (e) {
@@ -111,18 +118,42 @@
             if (!selected().length && !confirm('You have not chosen an answer. Move on without one?')) { e.preventDefault(); return; }
             if (isLast && !confirm('This is the last question. Finish and submit the exam?')) { e.preventDefault(); return; }
         }
+        leaving = true;
         document.getElementById('next-btn').disabled = true;
     });
 
     // ---- Integrity events (flagged for review, never an automatic penalty) ----
-    function send(type) {
+    // A browser also reports the page as "hidden" while it is being replaced, which happens on every
+    // question change. That is not the candidate leaving. So an absence is reported only when this page
+    // is still here and still hidden a moment later, and never while it is being replaced.
+    function send(type, extra = {}) {
         fetch(root.dataset.eventUrl, {
             method: 'POST', keepalive: true,
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-            body: JSON.stringify({ type }),
+            body: JSON.stringify({ type, ...extra }),
         }).catch(() => {});
     }
-    document.addEventListener('visibilitychange', () => send(document.hidden ? 'tab_hidden' : 'tab_visible'));
+
+    const GRACE_MS = Number(root.dataset.tabGraceMs) || 1000;   // shorter than this is not counted as leaving
+    let hiddenSince = null, graceTimer = null, reported = false;
+
+    window.addEventListener('pagehide', () => { leaving = true; });
+    window.addEventListener('beforeunload', () => { leaving = true; });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            hiddenSince = Date.now();
+            reported = false;
+            graceTimer = setTimeout(() => {
+                if (document.hidden && !leaving) { reported = true; send('tab_hidden'); }
+            }, GRACE_MS);
+        } else {
+            clearTimeout(graceTimer);
+            if (reported) { send('tab_visible', { away_seconds: Math.round((Date.now() - hiddenSince) / 1000) }); }
+            reported = false;
+            hiddenSince = null;
+        }
+    });
 })();
 </script>
 @endsection

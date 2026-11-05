@@ -20,7 +20,7 @@
                 $c = $counts->get($s->id, collect());
                 $total = max(1, ($c['assigned'] ?? 0) + ($c['checked_in'] ?? 0) + ($c['admitted'] ?? 0) + ($c['in_progress'] ?? 0) + ($c['completed'] ?? 0) + ($c['absent'] ?? 0));
                 $arrived = $total - ($c['assigned'] ?? 0) - ($c['absent'] ?? 0);
-                $opens = $s->starts_at->copy()->subHours(2);
+                $opens = $s->starts_at->copy()->subHours(\App\Support\Settings::int('checkin.opens_hours_before'));
                 [$stateText, $stateChip] = $now->lt($opens) ? ['Check-in opens '.$opens->format('g:i A'), 'chip-neutral']
                     : ($now->gt($s->ends_at) ? ['Ended', 'chip-muted'] : ['Check-in open', 'chip-good']);
             @endphp

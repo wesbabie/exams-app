@@ -42,8 +42,9 @@ function sat(array $o = []): array
     $sitting = ExamSession::create(['exam_id' => $exam->id, 'name' => 'Session 1', 'capacity' => 10, 'starts_at' => now()->subDays(2), 'ends_at' => now()->subDays(2)->addHours(2)]);
     $paper = ExamPaper::create(['exam_session_id' => $sitting->id, 'generated_at' => now()->subDays(3), 'frozen_at' => now()->subDays(3)]);
 
-    $candidate = StaffCandidate::create([
-        'file_number' => $o['file'] ?? "F/00{$n}", 'surname' => $o['surname'] ?? 'Okoro', 'first_name' => $o['first'] ?? 'Ada',
+    // The same person can sit more than one exam, so reuse the candidate when the file number is already there
+    $candidate = StaffCandidate::firstOrCreate(['file_number' => $o['file'] ?? "F/00{$n}"], [
+        'surname' => $o['surname'] ?? 'Okoro', 'first_name' => $o['first'] ?? 'Ada',
         'cadre' => 'Nurse', 'level' => 'I', 'email' => array_key_exists('email', $o) ? $o['email'] : "ada{$n}@example.com",
     ]);
     $registration = ExamRegistration::create(['exam_id' => $exam->id, 'exam_session_id' => $sitting->id, 'candidate_type' => 'staff', 'candidate_id' => $candidate->id, 'seat_number' => '1', 'status' => 'completed']);
@@ -250,9 +251,9 @@ it('limits how many codes can be requested', function () {
 });
 
 it('sends people with no code request or session back to the start', function () {
-    $this->get(route('myresults.verify'))->assertRedirect(route('myresults.request'));
+    $this->get(route('myresults.verify'))->assertRedirect(route('myresults.email'));
     $this->get(route('myresults.show'))->assertRedirect(route('myresults.request'));
-    $this->post(route('myresults.verify.store'), ['code' => '123456'])->assertRedirect(route('myresults.request'));
+    $this->post(route('myresults.verify.store'), ['code' => '123456'])->assertRedirect(route('myresults.email'));
 });
 
 // ---- The trail
@@ -287,7 +288,8 @@ it('tells the exam office which staff candidates cannot get a code', function ()
 
 it('is reachable from the front door', function () {
     $this->get('/')->assertOk()->assertSee(route('myresults.request'), false)->assertSee('I want to see my result');
-    $this->get(route('myresults.request'))->assertOk()->assertSee('Email me a code');
+    $this->get(route('myresults.request'))->assertOk()->assertSee('Show my results')->assertSee('Lost your PIN?');
+    $this->get(route('myresults.email'))->assertOk()->assertSee('Email me a code');
 });
 
 // ---- Interns
@@ -343,4 +345,208 @@ it('does not show an intern a result before they have sat the exam', function ()
     $f = approvedIntern(['status' => 'assigned']);
 
     $this->actingAs($f['applicant'], 'applicant')->get(route('intern.dashboard'))->assertOk()->assertDontSee('Passed')->assertDontSee('has completed');
+});
+
+
+// ---- Number and PIN
+
+/** The PIN a candidate was handed at check-in, long since expired for the exam itself. */
+function pinFor(ExamRegistration $registration): string
+{
+    $registration->examSession->update(['ends_at' => now()->subDay()]); // the sitting is over, so the exam PIN has expired
+    $pin = $registration->fresh()->issuePin();
+    $registration->examSession->update(['ends_at' => now()->subDay()]);
+
+    return $pin;
+}
+
+function pinSignIn(string $number, string $pin)
+{
+    return test()->post(route('myresults.pin'), ['exam_number' => $number, 'pin' => $pin]);
+}
+
+it('shows staff their result when they enter their file number and exam PIN', function () {
+    $f = sat(['file' => 'F/900']);
+    $pin = pinFor($f['registration']);
+
+    pinSignIn('f/900 ', $pin)->assertRedirect(route('myresults.show'));
+
+    test()->get(route('myresults.show'))->assertOk()->assertSee($f['exam']->title)->assertSee('Passed')->assertSee('General Knowledge')->assertSee('file number F/900');
+});
+
+it('works after the exam PIN has expired, but never starts an exam', function () {
+    $f = sat(['file' => 'F/901']);
+    $pin = pinFor($f['registration']);
+
+    expect($f['registration']->fresh()->pinIsValid($pin))->toBeFalse(); // exam sign-in: expired
+    pinSignIn('F/901', $pin)->assertRedirect(route('myresults.show'));    // results: allowed
+
+    $this->post(route('candidate.login.store'), ['exam_number' => 'F/901', 'pin' => $pin])->assertSessionHasErrors();
+    $this->assertGuest();
+});
+
+it('shows an intern their result with their application number and PIN', function () {
+    $f = approvedIntern();
+    $registration = ExamRegistration::where('candidate_type', 'applicant')->firstOrFail();
+    $pin = pinFor($registration);
+
+    pinSignIn('int/2026/0001', $pin)->assertRedirect(route('myresults.show'));
+
+    test()->get(route('myresults.show'))->assertOk()->assertSee('Pharmacy Entrance 2026')->assertSee('Passed')->assertSee('application INT/2026/0001')->assertSee('Danjuma');
+});
+
+it('gives the same answer for a wrong PIN, a wrong number and someone else\'s PIN', function () {
+    $ada = sat(['file' => 'F/910']);
+    $bola = sat(['file' => 'F/911', 'first' => 'Bola']);
+    $adaPin = pinFor($ada['registration']);
+    $bolaPin = pinFor($bola['registration']);
+    $wrong = $adaPin === '000000' ? '111111' : '000000';
+
+    $messages = collect([
+        ['F/910', $wrong],      // right number, wrong PIN
+        ['F/999', $adaPin],     // number that does not exist
+        ['F/910', $bolaPin],    // right number, a different person's PIN
+    ])->map(fn ($try) => pinSignIn(...$try)->assertSessionHasErrors('pin')->assertRedirect()->baseResponse->getSession()->get('errors')->first('pin'));
+
+    expect($messages->unique())->toHaveCount(1)->and($messages->first())->toContain('do not match');
+    test()->get(route('myresults.show'))->assertRedirect(route('myresults.request'));
+});
+
+it('locks a number for fifteen minutes after five wrong PINs, even for the right PIN', function () {
+    $f = sat(['file' => 'F/920']);
+    $pin = pinFor($f['registration']);
+    $wrong = $pin === '000000' ? '111111' : '000000';
+
+    foreach (range(1, 5) as $ignored) {
+        pinSignIn('F/920', $wrong)->assertSessionHasErrors('pin');
+    }
+
+    $locked = pinSignIn('F/920', $pin)->assertSessionHasErrors('pin');
+    expect(session('errors')->first('pin'))->toContain('Too many tries');
+    test()->get(route('myresults.show'))->assertRedirect(route('myresults.request'));
+
+    test()->travel(16)->minutes();
+    pinSignIn('F/920', $pin)->assertRedirect(route('myresults.show'));
+});
+
+it('stops a slow guesser with a daily limit', function () {
+    $f = sat(['file' => 'F/930']);
+    $pin = pinFor($f['registration']);
+    $wrong = $pin === '000000' ? '111111' : '000000';
+
+    foreach (range(1, 4) as $round) {
+        foreach (range(1, 5) as $ignored) {
+            pinSignIn('F/930', $wrong);
+        }
+        test()->travel(16)->minutes();
+        RateLimiter::clear('myresults-pin-ip:127.0.0.1'); // a different computer each time
+    }
+
+    pinSignIn('F/930', $pin)->assertSessionHasErrors('pin');
+    expect(session('errors')->first('pin'))->toContain('today');
+});
+
+it('limits guessing from one computer across many numbers', function () {
+    sat(['file' => 'F/940']);
+
+    foreach (range(1, 15) as $i) {
+        pinSignIn('F/9'.str_pad((string) $i, 2, '0', STR_PAD_LEFT).'99', '123456');
+    }
+
+    pinSignIn('F/940', '123456')->assertSessionHasErrors('pin');
+    expect(session('errors')->first('pin'))->toContain('Too many tries');
+});
+
+it('shows a candidate only the exam their PIN belongs to', function () {
+    $first = sat(['file' => 'F/950', 'title' => 'Promotion 2025']);
+    $second = sat(['file' => 'F/950', 'title' => 'Promotion 2026']); // same person, another exam
+    $firstPin = pinFor($first['registration']);
+
+    pinSignIn('F/950', $firstPin)->assertRedirect(route('myresults.show'));
+
+    test()->get(route('myresults.show'))->assertSee('Promotion 2025')->assertDontSee('Promotion 2026');
+});
+
+it('lets a candidate in but shows nothing while results are not released', function () {
+    $f = sat(['file' => 'F/960', 'released' => null]);
+    $pin = pinFor($f['registration']);
+
+    pinSignIn('F/960', $pin)->assertRedirect(route('myresults.show'));
+
+    test()->get(route('myresults.show'))->assertOk()->assertSee('No results are available')->assertDontSee($f['exam']->title);
+});
+
+it('ends a PIN session after thirty minutes and on sign-out', function () {
+    $f = sat(['file' => 'F/970']);
+    pinSignIn('F/970', pinFor($f['registration']));
+    test()->get(route('myresults.show'))->assertOk();
+
+    test()->post(route('myresults.logout'))->assertRedirect(route('myresults.request'));
+    test()->get(route('myresults.show'))->assertRedirect(route('myresults.request'));
+
+    pinSignIn('F/970', pinFor($f['registration']));
+    test()->travel(31)->minutes();
+    test()->get(route('myresults.show'))->assertRedirect(route('myresults.request'));
+});
+
+it('needs a six-digit PIN', function () {
+    sat(['file' => 'F/980']);
+
+    pinSignIn('F/980', '12345')->assertSessionHasErrors('pin');
+    pinSignIn('F/980', 'abcdef')->assertSessionHasErrors('pin');
+    pinSignIn('', '123456')->assertSessionHasErrors('exam_number');
+});
+
+it('records PIN lockouts for real numbers only, and which way people got in', function () {
+    $f = sat(['file' => 'F/990']);
+    $pin = pinFor($f['registration']);
+    $wrong = $pin === '000000' ? '111111' : '000000';
+
+    foreach (range(1, 5) as $ignored) {
+        pinSignIn('F/990', $wrong);
+        pinSignIn('F/00000', $wrong); // a number nobody has
+    }
+    expect(AuditLog::where('action', 'candidate.results_pin_locked')->count())->toBe(1)
+        ->and(AuditLog::where('action', 'candidate.results_pin_locked')->first()->subject_label)->toBe('F/990')
+        ->and(AuditLog::where('subject_label', 'F/00000')->count())->toBe(0);
+
+    test()->travel(16)->minutes();
+    pinSignIn('F/990', $pin);
+    test()->get(route('myresults.show'));
+
+    $viewed = AuditLog::where('action', 'candidate.results_viewed')->firstOrFail();
+    expect($viewed->meta['via'])->toBe('pin')->and(json_encode(AuditLog::pluck('meta')->all()))->not->toContain($pin);
+});
+
+it('still lets staff who lost the PIN use the emailed code, and shows both ways in', function () {
+    $f = sat(['file' => 'F/995']);
+    $code = codeFor('F/995');
+
+    test()->post(route('myresults.verify.store'), ['code' => $code])->assertRedirect(route('myresults.show'));
+    test()->get(route('myresults.show'))->assertOk()->assertSee($f['exam']->title);
+    expect(AuditLog::where('action', 'candidate.results_viewed')->firstOrFail()->meta['via'])->toBe('email');
+});
+
+// ---- System settings that govern the results pages
+
+it('follows the settings for PIN tries, how long a lock lasts and how long results can be read', function () {
+    $f = sat(['file' => 'F/SET']);
+    $pin = pinFor($f['registration']);
+    $wrong = $pin === '000000' ? '111111' : '000000';
+
+    app(App\Support\Settings::class)->save(['results.pin_tries' => 3, 'results.pin_lock_minutes' => 30, 'results.read_minutes' => 10], null);
+
+    foreach (range(1, 3) as $ignored) {
+        pinSignIn('F/SET', $wrong)->assertSessionHasErrors('pin');
+    }
+    pinSignIn('F/SET', $pin)->assertSessionHasErrors('pin');    // locked after only three
+
+    test()->travel(16)->minutes();
+    pinSignIn('F/SET', $pin)->assertSessionHasErrors('pin');    // the lock lasts 30 minutes now, not 15
+
+    test()->travel(15)->minutes();
+    pinSignIn('F/SET', $pin)->assertRedirect(route('myresults.show'));
+
+    test()->travel(11)->minutes();                                // readable for 10 minutes now, not 30
+    test()->get(route('myresults.show'))->assertRedirect(route('myresults.request'));
 });

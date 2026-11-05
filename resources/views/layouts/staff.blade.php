@@ -6,7 +6,7 @@
         'staff.dashboard' => 'grid', 'officer.exams.index' => 'exams', 'officer.categories.index' => 'layers',
         'officer.applicants.index' => 'user-plus', 'officer.intakes.index' => 'calendar', 'bank.questions.index' => 'help',
         'bank.topics.index' => 'hash', 'invigilator.sittings.index' => 'user-check', 'results.index' => 'chart',
-        'admin.staff.index' => 'users', 'audit.index' => 'history',
+        'admin.staff.index' => 'users', 'audit.index' => 'history', 'admin.settings.edit' => 'sliders',
     ];
 @endphp
 

@@ -27,9 +27,20 @@ class Applicant extends Authenticatable
         'rejected' => 'Rejected',
     ];
 
-    public const OTP_MINUTES = 15;
-    public const OTP_MAX_ATTEMPTS = 5;
-    public const OTP_RESEND_SECONDS = 60;
+    public static function otpMinutes(): int
+    {
+        return \App\Support\Settings::int('intern.otp_minutes');
+    }
+
+    public static function otpMaxAttempts(): int
+    {
+        return \App\Support\Settings::int('intern.otp_max_attempts');
+    }
+
+    public static function otpResendSeconds(): int
+    {
+        return \App\Support\Settings::int('intern.otp_resend_seconds');
+    }
 
     protected $guarded = [];
 
@@ -127,23 +138,23 @@ class Applicant extends Authenticatable
         $this->forceFill([
             'email_otp_hash' => Hash::make($code),
             'email_otp_sent_at' => now(),
-            'email_otp_expires_at' => now()->addMinutes(self::OTP_MINUTES),
+            'email_otp_expires_at' => now()->addMinutes(self::otpMinutes()),
             'email_otp_attempts' => 0,
         ])->save();
 
-        Mail::to($this->email)->send(new ApplicantOtpMail($this->first_name, $code, self::OTP_MINUTES));
+        Mail::to($this->email)->send(new ApplicantOtpMail($this->first_name, $code, self::otpMinutes()));
     }
 
     public function canResendEmailOtp(): bool
     {
         return ! $this->email_otp_sent_at
-            || $this->email_otp_sent_at->copy()->addSeconds(self::OTP_RESEND_SECONDS)->isPast();
+            || $this->email_otp_sent_at->copy()->addSeconds(self::otpResendSeconds())->isPast();
     }
 
     public function resendWaitSeconds(): int
     {
         return $this->email_otp_sent_at
-            ? max(0, (int) now()->diffInSeconds($this->email_otp_sent_at->copy()->addSeconds(self::OTP_RESEND_SECONDS), false))
+            ? max(0, (int) now()->diffInSeconds($this->email_otp_sent_at->copy()->addSeconds(self::otpResendSeconds()), false))
             : 0;
     }
 
@@ -156,14 +167,14 @@ class Applicant extends Authenticatable
             return 'expired';
         }
 
-        if ($this->email_otp_attempts >= self::OTP_MAX_ATTEMPTS) {
+        if ($this->email_otp_attempts >= self::otpMaxAttempts()) {
             return 'locked';
         }
 
         if (! Hash::check($code, $this->email_otp_hash)) {
             $this->increment('email_otp_attempts');
 
-            return $this->email_otp_attempts >= self::OTP_MAX_ATTEMPTS ? 'locked' : 'wrong';
+            return $this->email_otp_attempts >= self::otpMaxAttempts() ? 'locked' : 'wrong';
         }
 
         $this->forceFill([

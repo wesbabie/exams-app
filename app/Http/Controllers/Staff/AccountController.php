@@ -21,7 +21,7 @@ class AccountController extends Controller
     {
         $data = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', 'different:current_password', Password::min(10)->mixedCase()->numbers()],
+            'password' => ['required', 'confirmed', 'different:current_password', Password::min(\App\Support\Settings::int('staff.min_password_length'))->mixedCase()->numbers()],
         ], [
             'current_password.current_password' => 'The current password is not correct.',
             'password.different' => 'The new password must be different from the current one.',

@@ -52,7 +52,8 @@ enum StaffRole: string
         }
 
         if ($this === self::SuperAdmin) {
-            $links[] = ['Staff', 'admin.staff.index', 'admin.*'];
+            $links[] = ['Staff', 'admin.staff.index', 'admin.staff.*'];
+            $links[] = ['Settings', 'admin.settings.edit', 'admin.settings.*'];
         }
 
         if (in_array($this, [self::SuperAdmin, self::Committee], true)) {
@@ -72,7 +73,7 @@ enum StaffRole: string
                 ['Topics', 'Topics that questions are filed under.', 'bank.topics.index'],
                 ['Results', 'Rankings, release and reports for every exam.', 'results.index'],
                 ['Staff accounts and roles', 'Create staff accounts, assign roles, reset passwords, deactivate accounts.', 'admin.staff.index'],
-                ['System settings', 'Settings that apply across every exam.', null],
+                ['System settings', 'Check-in, PIN, clock and password rules for the whole system.', 'admin.settings.edit'],
                 ['Audit log', 'Who changed what, and when. Read-only.', 'audit.index'],
             ],
             self::ExamOfficer => [

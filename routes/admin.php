@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StaffAccountController;
 use App\Http\Middleware\EnsureStaffAccountReady;
 use App\Http\Middleware\EnsureStaffRole;
@@ -19,4 +20,8 @@ Route::prefix('admin')
         Route::post('staff/{staff}/deactivate', [StaffAccountController::class, 'deactivate'])->name('staff.deactivate');
         Route::post('staff/{staff}/reactivate', [StaffAccountController::class, 'reactivate'])->name('staff.reactivate');
         Route::post('staff/{staff}/reset-password', [StaffAccountController::class, 'resetPassword'])->name('staff.reset-password');
+
+        Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('settings/reset', [SettingsController::class, 'reset'])->name('settings.reset');
     });

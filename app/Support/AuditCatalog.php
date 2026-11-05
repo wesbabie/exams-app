@@ -16,6 +16,7 @@ final class AuditCatalog
         'results' => 'Results',
         'interns' => 'Interns',
         'accounts' => 'Accounts and sign-ins',
+        'settings' => 'System settings',
     ];
 
     /** Actions that deserve a second look when scanning the log. */
@@ -23,7 +24,7 @@ final class AuditCatalog
         'results_released', 'results_withdrawn', 'results.exams.recalculate', 'results.exams.export',
         'account_unlocked', 'pin_reissued', 'admission_revoked', 'check_in_undone',
         'candidate_removed', 'list_discarded', 'extra_time_set',
-        'staff.deactivated', 'staff.password_reset', 'auth.failed', 'candidate.locked', 'candidate.results_code_failed', 'audit.export',
+        'staff.deactivated', 'staff.password_reset', 'auth.failed', 'candidate.locked', 'candidate.results_code_failed', 'candidate.results_pin_locked', 'audit.export', 'admin.settings.update',
         'bank.questions.destroy', 'officer.exams.reopen', 'officer.exams.sittings.destroy',
         'officer.applicants.reject', 'bank.questions.retire',
     ];

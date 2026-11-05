@@ -40,7 +40,7 @@
 
         <label for="password" class="field-label">Password</label>
         <input id="password" name="password" type="password" required autocomplete="new-password" class="field">
-        <p class="field-hint">At least 8 characters, with letters and numbers.</p>
+        <p class="field-hint">At least {{ \App\Support\Settings::int('intern.min_password_length') }} characters, with letters and numbers.</p>
 
         <label for="password_confirmation" class="field-label">Confirm password</label>
         <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="field">

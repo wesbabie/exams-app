@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
@@ -31,7 +31,7 @@ class StaffAccountController extends Controller
                 ->orWhere('email', 'like', "%{$term}%")
                 ->orWhere('file_number', 'like', '%'.strtoupper($term).'%')))
             ->orderBy('name')
-            ->paginate(25)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.staff.index', [

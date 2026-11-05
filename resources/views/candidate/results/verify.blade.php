@@ -23,6 +23,6 @@
 
 <div class="mt-8 space-y-2 border-t border-slate-200 pt-5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
     <p>No email? Check your spam folder first. If it still does not come, the exam office may not have your email address: ask them for a printed result slip.</p>
-    <p><a href="{{ route('myresults.request') }}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">Use a different file number or send a new code</a></p>
+    <p><a href="{{ route('myresults.email') }}" class="font-semibold text-blue-700 hover:underline dark:text-blue-300">Use a different file number or send a new code</a></p>
 </div>
 @endsection

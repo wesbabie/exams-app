@@ -166,7 +166,7 @@ it('rejects an expired code', function () {
     $a->sendEmailOtp();
     $code = Mail::sent(ApplicantOtpMail::class)->first()->code;
 
-    $this->travel(Applicant::OTP_MINUTES + 1)->minutes();
+    $this->travel(Applicant::otpMinutes() + 1)->minutes();
 
     $this->actingAs($a, 'applicant')->post(route('intern.verify.store'), ['code' => $code])->assertSessionHasErrors('code');
 });

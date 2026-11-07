@@ -468,3 +468,10 @@
         color: #c8452c;
     }
 }
+/* Restrict text selection on examination content */
+.exam-no-copy {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

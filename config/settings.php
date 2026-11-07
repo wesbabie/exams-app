@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * System settings: the rules the whole system follows that an administrator may need to change.
@@ -86,7 +86,7 @@ return [
 
         // ---- Staff
         'staff.min_password_length' => [
-            'group' => 'staff', 'label' => 'Shortest staff password', 'unit' => 'characters', 'default' => 10, 'min' => 8, 'max' => 32,
+            'group' => 'staff', 'label' => 'Shortest staff password', 'unit' => 'characters', 'default' => 10, 'min' => 6, 'max' => 32,
             'help' => 'Applies when a password is next changed. Staff also need upper and lower case letters and numbers.',
         ],
     ],

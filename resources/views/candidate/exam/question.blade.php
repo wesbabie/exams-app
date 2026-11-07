@@ -31,7 +31,9 @@
         @csrf
         <input type="hidden" name="question" value="{{ $aq->id }}">
 
-        <p class="font-display whitespace-pre-line text-xl font-semibold leading-snug sm:text-2xl">{{ $question->stem }}</p>
+        <p class="exam-no-copy font-display whitespace-pre-line text-xl font-semibold leading-snug sm:text-2xl">
+    {{ $question->stem }}
+    </p>
         <p class="mt-2.5 text-sm text-slate-600 dark:text-slate-300">{{ $multi ? 'Choose every answer that is correct.' : 'Choose one answer.' }}</p>
 
         <div class="mt-5 space-y-2.5" role="{{ $multi ? 'group' : 'radiogroup' }}">
@@ -39,7 +41,7 @@
                 <label class="choice {{ $multi ? 'choice-multi' : '' }}">
                     <input type="{{ $multi ? 'checkbox' : 'radio' }}" name="selected[]" value="{{ $option->id }}" @checked(in_array($option->id, $selected, true)) class="sr-only">
                     <span class="choice-bubble" aria-hidden="true">{{ chr(65 + $loop->index) }}</span>
-                    <span class="pt-1 text-base leading-snug sm:text-lg">{{ $option->body }}</span>
+                    <span class="exam-copy pt-1 text-base leading-snug sm:text-lg">{{ $option->body }}</span>
                 </label>
             @endforeach
         </div>
@@ -155,5 +157,34 @@
         }
     });
 })();
+
+// ---- Exam copy protection ----
+
+const examArea = document.getElementById('exam');
+
+// Disable right-click context menu
+examArea.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// Prevent copying and cutting
+examArea.addEventListener('copy', function(e) {
+    e.preventDefault();
+});
+
+examArea.addEventListener('cut', function(e) {
+    e.preventDefault();
+});
+
+// Prevent keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    const key = e.key.toLowerCase();
+
+    if ((e.ctrlKey || e.metaKey) &&
+        ['c', 'x', 'a'].includes(key)) {
+        e.preventDefault();
+    }
+});
+
 </script>
 @endsection

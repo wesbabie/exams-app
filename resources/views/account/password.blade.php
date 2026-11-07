@@ -29,7 +29,7 @@
 
         <label for="password" class="{{ $label }}">New password</label>
         <input id="password" name="password" type="password" required autocomplete="new-password" class="{{ $input }}">
-        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">At least 10 characters, with capital and small letters and a number.</p>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">At least 6 characters, with capital and small letters and a number.</p>
 
         <label for="password_confirmation" class="{{ $label }}">Repeat the new password</label>
         <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="{{ $input }}">
